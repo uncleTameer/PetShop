@@ -1,22 +1,22 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => null,
+        'reference' => 'f699a3960d60271607c83b182f5600ae0a696cc2',
         'name' => '__root__',
         'dev' => true,
     ),
     'versions' => array(
         '__root__' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => null,
+            'reference' => 'f699a3960d60271607c83b182f5600ae0a696cc2',
             'dev_requirement' => false,
         ),
         'jean85/pretty-package-versions' => array(
@@ -35,6 +35,15 @@
             'install_path' => __DIR__ . '/../mongodb/mongodb',
             'aliases' => array(),
             'reference' => '72d80889eb7567c0da4e7d4ddbdcf66dfea90ac3',
+            'dev_requirement' => false,
+        ),
+        'phpmailer/phpmailer' => array(
+            'pretty_version' => 'v6.9.3',
+            'version' => '6.9.3.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../phpmailer/phpmailer',
+            'aliases' => array(),
+            'reference' => '2f5c94fe7493efc213f643c23b1b1c249d40f47e',
             'dev_requirement' => false,
         ),
         'symfony/polyfill-php73' => array(
