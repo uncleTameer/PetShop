@@ -1,1 +1,30 @@
-[]
+[{
+    "_id": {
+      "$oid": "67ffd0a3282a600674ca5e8d"
+    },
+    "name": "Premium Dog Food",
+    "price": 59.9,
+    "image": "uploads/dogfood.jpg",
+    "category": "Dogs",
+    "stock": 15
+  },
+  {
+    "_id": {
+      "$oid": "67ffd0b8282a600674ca5e8f"
+    },
+    "name": "Premium Cat Food",
+    "price": 59.9,
+    "image": "uploads/dogfood.jpg",
+    "category": "Dogs",
+    "stock": 15
+  },
+  {
+    "_id": {
+      "$oid": "67ffd0d2282a600674ca5e91"
+    },
+    "name": "Premium Bird Seed",
+    "price": 69.9,
+    "image": "uploads/dogfood.jpg",
+    "category": "Dogs",
+    "stock": 15
+  }]
