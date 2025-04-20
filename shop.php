@@ -5,6 +5,17 @@ session_start();
 $products = $db->products->find();
 ?>
 
+<script>
+  // Auto-hide alerts after 3 seconds
+  setTimeout(() => {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+      const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+      bsAlert.close();
+    });
+  }, 3000);
+</script>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,6 +25,35 @@ $products = $db->products->find();
   <script src="js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
+
+<nav class="navbar navbar-dark bg-dark px-4 mb-4">
+  <a class="navbar-brand" href="index.php">🏠 Pet Shop</a>
+  <div class="ms-auto text-white">
+    <?php if (isset($_SESSION['user'])): ?>
+      Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?>
+      <a href="myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a> 
+      <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
+    <?php else: ?>
+      <a href="php/login.php" class="btn btn-outline-light btn-sm me-2">Login</a>
+      <a href="php/register.php" class="btn btn-outline-light btn-sm">Register</a>
+    <?php endif; ?>
+    <a href="cart.php" class="btn btn-warning btn-sm ms-3">🛒 Cart</a>
+  </div>
+</nav>
+
+<?php if (isset($_SESSION['error_message'])): ?>
+  <div class="alert alert-danger alert-dismissible fade show text-center mx-4" role="alert">
+    <?= $_SESSION['error_message'] ?>
+  </div>
+  <?php unset($_SESSION['error_message']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success_message'])): ?>
+  <div class="alert alert-success alert-dismissible fade show text-center mx-4" role="alert">
+    <?= $_SESSION['success_message'] ?>
+  </div>
+  <?php unset($_SESSION['success_message']); ?>
+<?php endif; ?>
 
   <div class="container py-4">
     <h2 class="text-center mb-4">All Products</h2>
@@ -27,20 +67,21 @@ $products = $db->products->find();
               <h5 class="card-title"><?= $product['name'] ?></h5>
               <p class="card-text">₪<?= number_format($product['price'], 2) ?></p>
               <p class="card-text"><small class="text-muted">Stock: <?= $product['stock'] ?></small></p>
-              <form method="POST" action="php/addToCart.php">
-                <input type="hidden" name="productId" value="<?= $product['_id'] ?>">
-                <input type="hidden" name="name" value="<?= $product['name'] ?>">
-                <input type="hidden" name="price" value="<?= $product['price'] ?>">
-                <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
-              </form>
-
+                <?php if ($product['stock'] > 0): ?>
+                  <form method="POST" action="php/addToCart.php">
+                   <input type="hidden" name="productId" value="<?= $product['_id'] ?>">
+                   <input type="hidden" name="name" value="<?= $product['name'] ?>">
+                   <input type="hidden" name="price" value="<?= $product['price'] ?>">
+                   <button type="submit" class="btn btn-primary w-100">🛒 Add to Cart</button>
+                  </form>
+                  <?php else: ?>
+                    <button class="btn btn-secondary w-100" disabled>❌ Out of Stock</button>
+                <?php endif; ?>
             </div>
           </div>
         </div>
       <?php endforeach; ?>
-
     </div>
   </div>
-
 </body>
 </html>

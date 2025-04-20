@@ -1,10 +1,15 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php'; // Composer autoloader
 
 try {
-    $client = new MongoDB\Client("mongodb://localhost:27017");
-    $db = $client->PetShop; // Change if your DB name is different
+    // Connect to MongoDB
+    $client = new MongoDB\Client("mongodb+srv://TandJ:HrsNdCml@cluster0.mjqwdkf.mongodb.net/?retryWrites=true&w=majority&ssl=true");
+
+
+    // Select your database
+    $db = $client->PetShopProject;
+
+     "✅ Connected to MongoDB!";
 } catch (Exception $e) {
-    die("Error connecting to MongoDB: " . $e->getMessage());
+     "❌ Connection failed: " . $e->getMessage();
 }
-?>
