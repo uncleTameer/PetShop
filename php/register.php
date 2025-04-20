@@ -52,26 +52,53 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
   <meta charset="UTF-8">
   <title>Register</title>
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
   <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/bootstrap.bundle.min.js" defer></script>
 </head>
-<body>
-  <h2>Register</h2>
-  <?php if ($message): ?>
-    <p style="color:red;"><?= $message ?></p>
-  <?php endif; ?>
-  <form method="POST" action="register.php">
-  <input type="text" name="fullName" placeholder="Full Name" required><br><br>
-  <input type="email" name="email" placeholder="Email" required><br><br>
-  <input type="password" name="password" placeholder="Password (min 6 chars)" required><br><br>
+<body class="bg-light">
 
-  <?php if (isset($_SESSION['user']) && $_SESSION['user']['isAdmin']): ?>
-  <label>
-    <input type="checkbox" name="isAdmin" value="1">
-    Register as Admin
-  </label><br><br>
-  <?php endif; ?>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+  <div class="card shadow p-4" style="width: 100%; max-width: 450px;">
+    <h3 class="text-center mb-4">🐾 Create Account</h3>
 
-  <button type="submit">Register</button>
-</form>
+    <?php if ($message): ?>
+      <div class="alert alert-danger text-center"><?= $message ?></div>
+    <?php endif; ?>
+
+    <form method="POST" action="register.php">
+      <div class="form-floating mb-3">
+        <input type="text" name="fullName" id="fullName" class="form-control" placeholder="Full Name" required>
+        <label for="fullName">Full Name</label>
+      </div>
+
+      <div class="form-floating mb-3">
+        <input type="email" name="email" id="email" class="form-control" placeholder="Email" required>
+        <label for="email">Email</label>
+      </div>
+
+      <div class="form-floating mb-3">
+        <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
+        <label for="password">Password (min 6 chars)</label>
+      </div>
+
+      <?php if (isset($_SESSION['user']) && $_SESSION['user']['isAdmin']): ?>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" name="isAdmin" id="isAdmin" value="1">
+          <label class="form-check-label" for="isAdmin">
+            Register as Admin
+          </label>
+        </div>
+      <?php endif; ?>
+
+      <button type="submit" class="btn btn-primary w-100">🚀 Register</button>
+    </form>
+
+    <div class="text-center mt-3">
+      <small>Already have an account? <a href="login.php">Login</a></small>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
