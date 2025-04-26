@@ -1,6 +1,7 @@
 {
     "require": {
         "mongodb/mongodb": "^1.16",
-        "phpmailer/phpmailer": "^6.9"
+        "phpmailer/phpmailer": "^6.9",
+        "google/apiclient": "2.13"
     }
 }

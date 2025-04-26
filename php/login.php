@@ -15,10 +15,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'id' => (string)$user->_id,
             'name' => $user['fullName'],
             'email' => $user['email'],
-            'isAdmin' => $user['isAdmin'] ?? false
+            'isAdmin' => $user['email'] === 'admin@admin.com'
         ];
 
-        $_SESSION['success_message'] = "✅ Welcome back, " . $user['fullName'] . "!";
         header("Location: ../" . ($_SESSION['user']['isAdmin'] ? "admin/dashboard.php" : "index.php"));
         exit;
     } else {
@@ -56,6 +55,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <button type="submit" class="btn btn-primary w-100">Login</button>
+
+    <hr class="my-4">
+
+    <a href="../googleLogin.php" class="btn btn-danger w-100">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="height: 20px; margin-right: 10px;">
+      Sign in with Google
+    </a>
   </form>
 </div>
 

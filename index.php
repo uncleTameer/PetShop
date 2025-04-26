@@ -5,13 +5,11 @@ require 'php/dbConnect.php';
 use MongoDB\BSON\ObjectId;
 
 $recentOrders = [];
-
-if (isset($_SESSION['user'])) {
+if (isset($_SESSION['user']['id'])) {
     $userId = new ObjectId($_SESSION['user']['id']);
-    $recentOrders = $db->orders->find(
-        ['userId' => $userId],
-        ['sort' => ['createdAt' => -1], 'limit' => 3]
-    )->toArray();
+} else {
+    // handle not logged in or missing ID
+    die('User ID is not set. Please log in.');
 }
 ?>
 <!DOCTYPE html>

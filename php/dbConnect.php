@@ -1,15 +1,14 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php'; // Composer autoloader
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use MongoDB\Client;
 
 try {
-    // Connect to MongoDB
-    $client = new MongoDB\Client("mongodb+srv://TandJ:HrsNdCml@cluster0.mjqwdkf.mongodb.net/?retryWrites=true&w=majority&ssl=true");
+    // Correct database name to match Compass!
+    $mongoClient = new Client("mongodb+srv://TandJ:HrsNdCml@cluster0.mjqwdkf.mongodb.net/PetShopProject?retryWrites=true&w=majority&tls=true");
+    $db = $mongoClient->selectDatabase('PetShopProject'); // ✅ Fix here too
 
-
-    // Select your database
-    $db = $client->PetShopProject;
-
-     "✅ Connected to MongoDB!";
 } catch (Exception $e) {
-     "❌ Connection failed: " . $e->getMessage();
+    die('Failed to connect to MongoDB: ' . $e->getMessage());
 }
+?>

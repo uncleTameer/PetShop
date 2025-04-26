@@ -1,37 +1,69 @@
 <?php
+ob_start();
+error_reporting(E_ALL & ~E_DEPRECATED);
+
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/php/dbConnect.php'; // Connect to your MongoDB Atlas
 
 session_start();
 
+// Setup Google client
 $client = new Google_Client();
-$client->setClientId('YOUR_CLIENT_ID_HERE');
-$client->setClientSecret('YOUR_CLIENT_SECRET_HERE');
-$client->setRedirectUri('http://localhost/PetShopProject/googleCallback.php');
+$client->setClientId('441326189251-dfmo63tji30jgd83mer8vr7b20k8o28e.apps.googleusercontent.com');
+$client->setClientSecret('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');
+$client->setRedirectUri('http://localhost/PetShop/googleCallback.php');
+$client->addScope('email');
+$client->addScope('profile');
 
+// Handling the code returned from Google
 if (isset($_GET['code'])) {
     $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+
     if (!isset($token['error'])) {
         $client->setAccessToken($token['access_token']);
-
-        // Get user profile info
         $oauth = new Google_Service_Oauth2($client);
-        $google_account_info = $oauth->userinfo->get();
+        $googleUser = $oauth->userinfo->get();
 
-        // Extract email and name
-        $email = $google_account_info->email;
-        $name = $google_account_info->name;
+        $email = $googleUser->email;
+        $name = $googleUser->name;
 
-        // TODO: Check if user exists in DB, if not insert. Then start session
-        $_SESSION['user_email'] = $email;
-        $_SESSION['user_name'] = $name;
+        // Try to find the user
+        $existingUser = $db->users->findOne(['email' => $email]);
 
-        // Redirect to homepage or dashboard
-        header('Location: index.php');
+        if (!$existingUser) {
+            // If user not found, create one
+            $insertResult = $db->users->insertOne([
+                'fullName' => $name,
+                'email' => $email,
+                'password' => password_hash(uniqid(), PASSWORD_DEFAULT),
+                'createdBy' => 'google',
+                'createdAt' => new MongoDB\BSON\UTCDateTime()
+            ]);
+
+            // Fetch the newly created user
+            $userId = $insertResult->getInsertedId();
+        } else {
+            // Use existing user ID
+            $userId = $existingUser->_id;
+        }
+
+        // Set full session
+        $_SESSION['user'] = [
+            'id' => (string) $userId,
+            'email' => $email,
+            'name' => $name,
+            'isAdmin' => $email === 'admin@admin.com'
+        ];
+
+        // Redirect to appropriate page
+        header('Location: ' . ($_SESSION['user']['isAdmin'] ? 'admin/dashboard.php' : 'index.php'));
         exit;
     } else {
-        echo "Error retrieving token: " . $token['error_description'];
+        echo "❌ Error fetching token: " . htmlspecialchars($token['error_description']);
     }
 } else {
-    echo "No code returned from Google.";
+    echo "❌ No authorization code returned from Google.";
 }
+
+ob_end_flush();
 ?>

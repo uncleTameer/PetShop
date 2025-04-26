@@ -1,13 +1,20 @@
 <?php
+require_once __DIR__ . '/php/dbConnect.php';
+?>
+
+<?php
+ob_start(); // Start output buffering
+error_reporting(E_ALL & ~E_DEPRECATED); // Hide deprecation warnings
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 session_start();
 
-// Setup the client
+// Setup the Google Client
 $client = new Google_Client();
-$client->setClientId('YOUR_CLIENT_ID_HERE');
-$client->setClientSecret('YOUR_CLIENT_SECRET_HERE');
-$client->setRedirectUri('http://localhost/PetShopProject/googleCallback.php');
+$client->setClientId('441326189251-dfmo63tji30jgd83mer8vr7b20k8o28e.apps.googleusercontent.com');
+$client->setClientSecret('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');
+$client->setRedirectUri('http://localhost/PetShop/googleCallback.php');
 $client->addScope('email');
 $client->addScope('profile');
 
@@ -15,4 +22,6 @@ $client->addScope('profile');
 $authUrl = $client->createAuthUrl();
 header('Location: ' . filter_var($authUrl, FILTER_SANITIZE_URL));
 exit;
+
+ob_end_flush(); // End output buffering
 ?>
