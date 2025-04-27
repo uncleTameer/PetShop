@@ -1,6 +1,9 @@
 <?php
 require 'dbConnect.php';
-session_start();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $message = '';
 
@@ -15,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'id' => (string)$user->_id,
             'name' => $user['fullName'],
             'email' => $user['email'],
-            'isAdmin' => $user['email'] === 'admin@admin.com'
+            'isAdmin' => isset($user['isAdmin']) && $user['isAdmin'] === true
         ];
 
         header("Location: ../" . ($_SESSION['user']['isAdmin'] ? "admin/dashboard.php" : "index.php"));
@@ -25,6 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -62,8 +66,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="height: 20px; margin-right: 10px;">
       Sign in with Google
     </a>
+    
+    <div class="text-center">
+      <small class="text-muted">Don't have an account?</small><br>
+      <a href="register.php" class="btn btn-outline-secondary btn-sm mt-2">📝 Register</a>
+    </div>
   </form>
 </div>
+
+<script>
+  const alertBox = document.querySelector('.alert');
+  if (alertBox) {
+    setTimeout(() => {
+      alertBox.style.transition = 'opacity 0.5s ease';
+      alertBox.style.opacity = '0';
+      setTimeout(() => alertBox.remove(), 500);
+    }, 3000);
+  }
+</script>
 
 </body>
 </html>

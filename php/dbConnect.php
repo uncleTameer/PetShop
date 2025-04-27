@@ -1,14 +1,18 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php'; 
 
-use MongoDB\Client;
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 try {
-    // Correct database name to match Compass!
-    $mongoClient = new Client("mongodb+srv://TandJ:HrsNdCml@cluster0.mjqwdkf.mongodb.net/PetShopProject?retryWrites=true&w=majority&tls=true");
-    $db = $mongoClient->selectDatabase('PetShopProject'); // ✅ Fix here too
-
+    $client = new MongoDB\Client("mongodb+srv://TandJ:HrsNdCml@cluster0.mjqwdkf.mongodb.net/");
+    $db = $client->PetShopProject;
 } catch (Exception $e) {
-    die('Failed to connect to MongoDB: ' . $e->getMessage());
+    echo "<div style='padding: 20px; background-color: #ffdddd; border: 1px solid red; color: darkred; font-family: sans-serif;'>
+            <strong>⚠️ Failed to connect to MongoDB!</strong><br>
+            " . htmlspecialchars($e->getMessage()) . "
+          </div>";
+    exit;
 }
 ?>

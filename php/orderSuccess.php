@@ -1,6 +1,8 @@
 <?php
 require_once('dbConnect.php');
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 use MongoDB\BSON\ObjectId;
 
 if (!isset($_SESSION['user']) || !isset($_SESSION['last_order_id'])) {

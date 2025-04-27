@@ -1,7 +1,8 @@
 <?php
 require 'php/dbConnect.php';
-session_start();
-
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 $products = $db->products->find();
 ?>
 

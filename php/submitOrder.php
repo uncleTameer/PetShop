@@ -1,6 +1,8 @@
 <?php
 require_once('dbConnect.php');
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (!isset($_SESSION['user'])) {
     $_SESSION['error_message'] = "You must be logged in to place an order.";

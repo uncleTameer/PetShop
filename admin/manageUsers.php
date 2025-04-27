@@ -1,7 +1,8 @@
 <?php
 require_once '../php/dbConnect.php';
-session_start();
-
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
     header("Location: ../index.php");
     exit;
@@ -56,10 +57,10 @@ $myEmail = $_SESSION['user']['email'];
         <tr>
           <td><?= htmlspecialchars($user['fullName']) ?></td>
           <td><?= htmlspecialchars($user['email']) ?></td>
-          <td><?= $user['isAdmin'] ? 'Admin' : 'User' ?></td>
+          <td><?= (isset($user['isAdmin']) && $user['isAdmin']) ? 'Admin' : 'User' ?></td>
           <td>
             <?php if ($user['email'] !== $myEmail): ?>
-              <?php if ($user['isAdmin']): ?>
+              <?php if (isset($user['isAdmin']) && $user['isAdmin']): ?>
                 <a href="toggleAdmin.php?email=<?= urlencode($user['email']) ?>&make=0" class="btn btn-sm btn-danger">Demote</a>
               <?php else: ?>
                 <a href="toggleAdmin.php?email=<?= urlencode($user['email']) ?>&make=1" class="btn btn-sm btn-success">Promote</a>

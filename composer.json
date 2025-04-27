@@ -1,7 +1,17 @@
 {
+    "name": "yosif/pet-shop",
+    "autoload": {
+        "psr-4": {
+            "Yosif\\PetShop\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "jerq2",
+            "email": "159196359+jerq2@users.noreply.github.com"
+        }
+    ],
     "require": {
-        "mongodb/mongodb": "^1.16",
-        "phpmailer/phpmailer": "^6.9",
-        "google/apiclient": "2.13"
+        "mongodb/mongodb": "^1.19"
     }
 }

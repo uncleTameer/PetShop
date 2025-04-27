@@ -1,6 +1,8 @@
 <?php
 require_once '../php/dbConnect.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 
 if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
     header("Location: ../index.php");
@@ -76,13 +78,42 @@ $products = $db->products->find($filter);
           </td>
           <td>
             <a href="editProduct.php?id=<?= $product['_id'] ?>" class="btn btn-warning btn-sm">✏️ Edit</a>
-            <a href="deleteProduct.php?id=<?= $product['_id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">🗑️ Delete</a>
+            <a href="deleteProduct.php?id=<?= $product['_id'] ?>&redirect=manageProducts.php" 
+               class="btn btn-danger btn-sm delete-btn"
+               onclick="return confirm('Are you sure you want to delete this product?')">
+               🗑️ Delete
+            </a>
           </td>
         </tr>
       <?php endforeach; ?>
     </tbody>
   </table>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const alerts = document.querySelectorAll('.alert');
+  alerts.forEach(alert => {
+    setTimeout(() => {
+      alert.style.transition = 'opacity 0.5s ease';
+      alert.style.opacity = '0';
+      setTimeout(() => alert.remove(), 500); // remove after fade
+    }, 3000); // 3 seconds
+  });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const deleteButtons = document.querySelectorAll('.delete-btn');
+  deleteButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Deleting...';
+    });
+  });
+});
+</script>
 
 </body>
 </html>

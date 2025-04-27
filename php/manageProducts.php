@@ -5,7 +5,9 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require_once '../php/dbConnect.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 
 if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
     header("Location: ../index.php");

@@ -1,6 +1,8 @@
 <?php
 require_once '../php/dbConnect.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 
 if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
     header("Location: ../index.php");
@@ -10,8 +12,22 @@ if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
 // Query totals
 $productCount = $db->products->countDocuments();
 $userCount = $db->users->countDocuments();
-$orderCount = $db->orders->countDocuments(); // Future-proof
+$orderCount = $db->orders->countDocuments();
 $lowStockCount = $db->products->countDocuments(['stock' => ['$lt' => 5]]);
+
+// Query product order stats
+$pipeline = [
+    ['$unwind' => '$items'],
+    ['$group' => [
+        '_id' => '$items.name',
+        'count' => ['$sum' => '$items.quantity']
+    ]],
+    ['$sort' => ['count' => -1]]
+];
+
+$productStats = $db->orders->aggregate($pipeline)->toArray();
+$mostOrdered = array_slice($productStats, 0, 5);
+$leastOrdered = array_slice(array_reverse($productStats), 0, 5);
 ?>
 
 <!DOCTYPE html>
@@ -35,58 +51,101 @@ $lowStockCount = $db->products->countDocuments(['stock' => ['$lt' => 5]]);
 <div class="container py-4">
   <h2 class="text-center mb-4">Welcome, Admin 👋</h2>
 
+  <div class="row g-4 mb-5">
+    <!-- Total Products -->
+    <div class="col-md-3">
+      <a href="manageProducts.php" class="text-decoration-none">
+        <div class="card text-white bg-primary shadow-sm">
+          <div class="card-body text-center">
+            <h4><?= $productCount ?></h4>
+            <p class="card-text">Total Products</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Registered Users -->
+    <div class="col-md-3">
+      <a href="manageUsers.php" class="text-decoration-none">
+        <div class="card text-white bg-success shadow-sm">
+          <div class="card-body text-center">
+            <h4><?= $userCount ?></h4>
+            <p class="card-text">Registered Users</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Total Orders -->
+    <div class="col-md-3">
+      <a href="manageOrders.php" class="text-decoration-none">
+        <div class="card text-white bg-info shadow-sm">
+          <div class="card-body text-center">
+            <h4><?= $orderCount ?></h4>
+            <p class="card-text">Total Orders</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Low Stock -->
+    <div class="col-md-3">
+      <a href="manageProducts.php?lowStock=1" class="text-decoration-none">
+        <div class="card text-white bg-danger shadow-sm">
+          <div class="card-body text-center">
+            <h4><?= $lowStockCount ?></h4>
+            <p class="card-text">Low Stock Items</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Most Ordered and Least Ordered Products -->
   <div class="row g-4">
-
-<!-- Total Products -->
-<div class="col-md-3">
-  <a href="manageProducts.php" class="text-decoration-none">
-    <div class="card text-white bg-primary shadow-sm">
-      <div class="card-body text-center">
-        <h4><?= $productCount ?></h4>
-        <p class="card-text">Total Products</p>
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white">
+          📈 Most Ordered Products
+        </div>
+        <div class="card-body">
+          <ul class="list-group">
+            <?php foreach ($mostOrdered as $item): ?>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <?= htmlspecialchars($item->_id) ?>
+                <span class="badge bg-success"><?= $item->count ?> times</span>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
       </div>
     </div>
-  </a>
-</div>
 
-<!-- Registered Users -->
-<div class="col-md-3">
-  <a href="manageUsers.php" class="text-decoration-none">
-    <div class="card text-white bg-success shadow-sm">
-      <div class="card-body text-center">
-        <h4><?= $userCount ?></h4>
-        <p class="card-text">Registered Users</p>
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-danger text-white">
+          📉 Least Ordered Products
+        </div>
+        <div class="card-body">
+          <ul class="list-group">
+            <?php foreach ($leastOrdered as $item): ?>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <?= htmlspecialchars($item->_id) ?>
+                <span class="badge bg-danger"><?= $item->count ?> times</span>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
       </div>
     </div>
-  </a>
-</div>
+  </div>
 
-<!-- Total Orders -->
-<div class="col-md-3">
-  <a href="manageOrders.php" class="text-decoration-none">
-    <div class="card text-white bg-info shadow-sm">
-      <div class="card-body text-center">
-        <h4><?= $orderCount ?></h4>
-        <p class="card-text">Total Orders</p>
-      </div>
-    </div>
-  </a>
-</div>
+  <div class="text-center mt-5">
+    <a href="orderReport.php" class="btn btn-outline-primary btn-lg">📊 View Full Order Report</a>
+  </div>
 
-<!-- Low Stock -->
-<div class="col-md-3">
-  <a href="manageProducts.php?lowStock=1" class="text-decoration-none">
-    <div class="card text-white bg-danger shadow-sm">
-      <div class="card-body text-center">
-        <h4><?= $lowStockCount ?></h4>
-        <p class="card-text">Low Stock Items</p>
-      </div>
-    </div>
-  </a>
-</div>
 
 </div>
-
 
 </body>
 </html>

@@ -1,7 +1,8 @@
 <?php
 require_once 'php/dbConnect.php';
-session_start();
-
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 if (!isset($_SESSION['user'])) {
     header("Location: php/login.php");
     exit;
