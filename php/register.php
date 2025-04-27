@@ -1,5 +1,6 @@
 <?php
 require 'dbConnect.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -7,17 +8,12 @@ if (session_status() === PHP_SESSION_NONE) {
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $firstName = trim($_POST['firstName'] ?? '');
-    $lastName = trim($_POST['lastName'] ?? '');
+    $fullName = trim($_POST['fullName'] ?? '');
     $email = trim($_POST['email'] ?? '');
-    $confirmEmail = trim($_POST['confirmEmail'] ?? '');
     $password = $_POST['password'] ?? '';
-    $acceptedTerms = isset($_POST['terms']);
 
-    if (!$acceptedTerms) {
+    if (!isset($_POST['terms'])) {
         $message = "❌ You must accept the Terms and Conditions.";
-    } elseif ($email !== $confirmEmail) {
-        $message = "❌ Emails do not match.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $message = "❌ Invalid email format.";
     } elseif (strlen($password) < 6) {
@@ -28,13 +24,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "❌ Email already exists.";
         } else {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $fullName = $firstName . ' ' . $lastName;
+            $isAdmin = isset($_SESSION['user']['isAdmin']) && $_SESSION['user']['isAdmin'] && isset($_POST['isAdmin']);
 
             $insert = $db->users->insertOne([
                 'fullName' => $fullName,
                 'email' => $email,
                 'password' => $hashedPassword,
-                'isAdmin' => false
+                'isAdmin' => $isAdmin
             ]);
 
             if ($insert->getInsertedCount() === 1) {
@@ -42,18 +38,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     'id' => (string)$insert->getInsertedId(),
                     'name' => $fullName,
                     'email' => $email,
-                    'isAdmin' => false
+                    'isAdmin' => $isAdmin
                 ];
-                $_SESSION['success_message'] = "🎉 Registration successful! Welcome, $firstName.";
-                header("Location: ../index.php");
+                $_SESSION['success_message'] = "🎉 Registration successful! Welcome, $fullName.";
+                header("Location: " . ($isAdmin ? "../admin/dashboard.php" : "../index.php"));
                 exit;
             } else {
-                $message = "❌ Something went wrong. Try again.";
+                $message = "❌ Something went wrong. Please try again.";
             }
         }
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

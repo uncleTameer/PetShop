@@ -8,26 +8,54 @@ if (session_status() === PHP_SESSION_NONE) {
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $firstName = trim($_POST['firstName'] ?? '');
+    $lastName = trim($_POST['lastName'] ?? '');
+    $fullName = $firstName . ' ' . $lastName;
     $email = trim($_POST['email'] ?? '');
+    $confirmEmail = trim($_POST['confirmEmail'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    $user = $db->users->findOne(['email' => $email]);
-
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user'] = [
-            'id' => (string)$user->_id,
-            'name' => $user['fullName'],
-            'email' => $user['email'],
-            'isAdmin' => isset($user['isAdmin']) && $user['isAdmin'] === true
-        ];
-
-        header("Location: ../" . ($_SESSION['user']['isAdmin'] ? "admin/dashboard.php" : "index.php"));
-        exit;
+    if (!isset($_POST['terms'])) {
+        $message = "❌ You must accept the Terms and Conditions.";
+    } elseif ($email !== $confirmEmail) {
+        $message = "❌ Emails do not match.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $message = "❌ Invalid email format.";
+    } elseif (strlen($password) < 6) {
+        $message = "❌ Password must be at least 6 characters.";
     } else {
-        $message = "❌ Invalid email or password.";
+        $existing = $db->users->findOne(['email' => $email]);
+        if ($existing) {
+            $message = "❌ Email already exists.";
+        } else {
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $isAdmin = isset($_SESSION['user']['isAdmin']) && $_SESSION['user']['isAdmin'] && isset($_POST['isAdmin']);
+
+            $insert = $db->users->insertOne([
+                'fullName' => $fullName,
+                'email' => $email,
+                'password' => $hashedPassword,
+                'isAdmin' => $isAdmin
+            ]);
+
+            if ($insert->getInsertedCount() === 1) {
+                $_SESSION['user'] = [
+                    'id' => (string)$insert->getInsertedId(),
+                    'name' => $fullName,
+                    'email' => $email,
+                    'isAdmin' => $isAdmin
+                ];
+                $_SESSION['success_message'] = "🎉 Registration successful! Welcome, $fullName.";
+                header("Location: " . ($isAdmin ? "../admin/dashboard.php" : "../index.php"));
+                exit;
+            } else {
+                $message = "❌ Something went wrong. Please try again.";
+            }
+        }
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
