@@ -8,12 +8,18 @@ if (session_status() === PHP_SESSION_NONE) {
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $fullName = trim($_POST['fullName'] ?? '');
+    $firstName = trim($_POST['firstName'] ?? '');
+    $lastName = trim($_POST['lastName'] ?? '');
+    $fullName = $firstName . ' ' . $lastName;
     $email = trim($_POST['email'] ?? '');
+    $confirmEmail = trim($_POST['confirmEmail'] ?? '');
     $password = $_POST['password'] ?? '';
 
+    // Validation checks
     if (!isset($_POST['terms'])) {
         $message = "❌ You must accept the Terms and Conditions.";
+    } elseif ($email !== $confirmEmail) {
+        $message = "❌ Emails do not match.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $message = "❌ Invalid email format.";
     } elseif (strlen($password) < 6) {
@@ -24,13 +30,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "❌ Email already exists.";
         } else {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $isAdmin = isset($_SESSION['user']['isAdmin']) && $_SESSION['user']['isAdmin'] && isset($_POST['isAdmin']);
+            $isAdmin = (isset($_SESSION['user']['isAdmin']) && $_SESSION['user']['isAdmin'] && isset($_POST['isAdmin'])) ? true : false;
 
             $insert = $db->users->insertOne([
                 'fullName' => $fullName,
                 'email' => $email,
                 'password' => $hashedPassword,
-                'isAdmin' => $isAdmin
+                'isAdmin' => $isAdmin,
+                'createdAt' => new MongoDB\BSON\UTCDateTime()  // ✅ Saving account creation time
             ]);
 
             if ($insert->getInsertedCount() === 1) {
@@ -51,13 +58,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Register - Horse & Camel</title>
-  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link href="../css/bootstrap.min.css" rel="stylesheet">
   <script src="../js/bootstrap.bundle.min.js" defer></script>
   <style>
     body {
@@ -74,13 +80,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       padding: 40px;
       border-radius: 12px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      animation: fadeIn 1s ease forwards;
       width: 100%;
       max-width: 500px;
+      animation: fadeIn 1s ease forwards;
     }
     @keyframes fadeIn {
       0% { opacity: 0; transform: translateY(-20px); }
       100% { opacity: 1; transform: translateY(0); }
+    }
+    .form-icon {
+      font-size: 2rem;
     }
   </style>
 </head>
@@ -90,11 +99,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <h2 class="text-center mb-3">📝 Create Account</h2>
   <p class="text-center text-muted mb-4">Join our family! 🐎🐫</p>
 
-  <?php if ($message): ?>
+  <?php if (!empty($message)): ?>
     <div class="alert alert-danger text-center flash-message"><?= $message ?></div>
   <?php endif; ?>
 
-  <form method="POST" action="register.php">
+  <form method="POST" action="register.php" novalidate>
     <div class="row g-3">
       <div class="col-md-6">
         <label class="form-label">First Name</label>
@@ -142,8 +151,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </form>
 </div>
 
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Welcome to Horse & Camel! 🐎🐫</p>
+        <ul>
+          <li>Respect community rules.</li>
+          <li>Provide honest and accurate information.</li>
+          <li>Use the website for personal purposes only.</li>
+          <li>Your data is protected but not guaranteed 100% secure.</li>
+          <li>Accounts misused may be suspended.</li>
+        </ul>
+        <p>Thank you for trusting us! ❤️</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-// Auto-hide flash messages
+// Flash message fade out
 document.addEventListener('DOMContentLoaded', function() {
   const flash = document.querySelector('.flash-message');
   if (flash) {
@@ -154,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 3000);
   }
 
-  // Password strength
+  // Password strength bar
   const passwordInput = document.getElementById('passwordInput');
   const strengthBar = document.getElementById('passwordStrength');
   passwordInput.addEventListener('input', function() {
@@ -170,39 +205,14 @@ document.addEventListener('DOMContentLoaded', function() {
       strengthBar.className = 'progress-bar bg-danger';
     } else if (strength === 2) {
       strengthBar.className = 'progress-bar bg-warning';
-    } else if (strength >= 3) {
+    } else {
       strengthBar.className = 'progress-bar bg-success';
     }
   });
 });
 </script>
-<!-- Terms and Conditions Modal -->
-<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>Welcome to Horse & Camel! 🐎🐫</p>
-        <p>By creating an account, you agree to:</p>
-        <ul>
-          <li>Respect our policies and rules.</li>
-          <li>Provide truthful information.</li>
-          <li>Use the platform for personal use only.</li>
-          <li>Understand that your data is protected but no system is 100% secure.</li>
-          <li>We reserve the right to suspend accounts for misuse.</li>
-        </ul>
-        <p>Thank you for joining our community! 🎉</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
+
 

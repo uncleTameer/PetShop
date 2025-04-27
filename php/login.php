@@ -5,52 +5,39 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Always clean leftover messages when loading login page
+unset($_SESSION['success_message']);
+unset($_SESSION['error_message']);
+
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $firstName = trim($_POST['firstName'] ?? '');
-    $lastName = trim($_POST['lastName'] ?? '');
-    $fullName = $firstName . ' ' . $lastName;
     $email = trim($_POST['email'] ?? '');
-    $confirmEmail = trim($_POST['confirmEmail'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    if (!isset($_POST['terms'])) {
-        $message = "❌ You must accept the Terms and Conditions.";
-    } elseif ($email !== $confirmEmail) {
-        $message = "❌ Emails do not match.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $message = "❌ Invalid email format.";
-    } elseif (strlen($password) < 6) {
-        $message = "❌ Password must be at least 6 characters.";
     } else {
-        $existing = $db->users->findOne(['email' => $email]);
-        if ($existing) {
-            $message = "❌ Email already exists.";
-        } else {
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $isAdmin = isset($_SESSION['user']['isAdmin']) && $_SESSION['user']['isAdmin'] && isset($_POST['isAdmin']);
+        $user = $db->users->findOne(['email' => $email]);
 
-            $insert = $db->users->insertOne([
-                'fullName' => $fullName,
-                'email' => $email,
-                'password' => $hashedPassword,
-                'isAdmin' => $isAdmin
-            ]);
-
-            if ($insert->getInsertedCount() === 1) {
+        if ($user) {
+            if (isset($user['suspended']) && $user['suspended'] === true) {
+                $message = "⛔ Your account is suspended. Please contact support.";
+            } elseif (password_verify($password, $user['password'])) {
                 $_SESSION['user'] = [
-                    'id' => (string)$insert->getInsertedId(),
-                    'name' => $fullName,
-                    'email' => $email,
-                    'isAdmin' => $isAdmin
+                    'id' => (string)$user->_id,
+                    'name' => $user['fullName'],
+                    'email' => $user['email'],
+                    'isAdmin' => isset($user['isAdmin']) && $user['isAdmin'] === true
                 ];
-                $_SESSION['success_message'] = "🎉 Registration successful! Welcome, $fullName.";
-                header("Location: " . ($isAdmin ? "../admin/dashboard.php" : "../index.php"));
+                $_SESSION['success_message'] = "🎉 Welcome back, " . htmlspecialchars($user['fullName']) . "!";
+                header("Location: ../" . ($_SESSION['user']['isAdmin'] ? "admin/dashboard.php" : "index.php"));
                 exit;
             } else {
-                $message = "❌ Something went wrong. Please try again.";
+                $message = "❌ Invalid email or password.";
             }
+        } else {
+            $message = "❌ Invalid email or password.";
         }
     }
 }
@@ -65,38 +52,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <link rel="stylesheet" href="../css/bootstrap.min.css">
   <script src="../js/bootstrap.bundle.min.js" defer></script>
   <style>
-  body {
-    background: url('https://images.unsplash.com/photo-1549924231-f129b911e442?ixlib=rb-4.0.3&auto=format&fit=crop&w=1650&q=80') no-repeat center center fixed;
-    background-size: cover;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
+    body {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                  url('https://images.unsplash.com/photo-1549924231-f129b911e442?auto=format&fit=crop&w=1650&q=80') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-  .auth-form {
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    animation: fadeIn 1s ease forwards;
-    width: 100%;
-    max-width: 450px;
-  }
+    .auth-form {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 45px 35px;
+      border-radius: 15px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      animation: fadeIn 1s ease;
+      width: 100%;
+      max-width: 420px;
+      backdrop-filter: blur(5px);
+    }
 
-  @keyframes fadeIn {
-    0% { opacity: 0; transform: translateY(-20px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
 
-  .btn-primary, .btn-success, .btn-outline-primary, .btn-outline-secondary {
-    transition: all 0.3s ease;
-  }
-  .btn-primary:hover, .btn-success:hover {
-    transform: scale(1.05);
-  }
-</style>
+    .btn-primary, .btn-danger, .btn-outline-secondary {
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover, .btn-danger:hover, .btn-outline-secondary:hover {
+      transform: scale(1.04);
+    }
+
+    .flash-message {
+      animation: slideDown 0.5s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-label {
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
 

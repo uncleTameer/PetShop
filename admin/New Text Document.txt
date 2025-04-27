@@ -1,0 +1,37 @@
+<?php
+require_once '../php/dbConnect.php';
+session_start();
+
+if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
+    header('Location: ../index.php');
+    exit;
+}
+
+if (!isset($_GET['email']) || !isset($_GET['action'])) {
+    $_SESSION['error_message'] = 'Invalid request.';
+    header('Location: manageUsers.php');
+    exit;
+}
+
+$email = $_GET['email'];
+$action = $_GET['action'];
+
+if ($email === $_SESSION['user']['email']) {
+    $_SESSION['error_message'] = 'You cannot suspend/unsuspend yourself!';
+    header('Location: manageUsers.php');
+    exit;
+}
+
+if ($action === 'suspend') {
+    $db->users->updateOne(['email' => $email], ['$set' => ['suspended' => true]]);
+    $_SESSION['success_message'] = '⛔ User suspended successfully.';
+} elseif ($action === 'unsuspend') {
+    $db->users->updateOne(['email' => $email], ['$unset' => ['suspended' => '']]);
+    $_SESSION['success_message'] = '🔓 User unsuspended successfully.';
+} else {
+    $_SESSION['error_message'] = 'Invalid action.';
+}
+
+header('Location: manageUsers.php');
+exit;
+?>

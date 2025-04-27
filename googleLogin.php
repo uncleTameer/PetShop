@@ -8,7 +8,9 @@ error_reporting(E_ALL & ~E_DEPRECATED); // Hide deprecation warnings
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Setup the Google Client
 $client = new Google_Client();

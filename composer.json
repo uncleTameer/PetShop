@@ -12,6 +12,7 @@
         }
     ],
     "require": {
-        "mongodb/mongodb": "^1.19"
+        "mongodb/mongodb": "^1.19",
+        "google/apiclient": "^2.0"
     }
 }
