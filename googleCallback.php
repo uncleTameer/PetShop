@@ -1,69 +1,75 @@
+
 <?php
-ob_start();
-error_reporting(E_ALL & ~E_DEPRECATED);
-
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/php/dbConnect.php'; // Connect to your MongoDB Atlas
+require_once __DIR__ . '/php/dbConnect.php';
 
-session_start();
-
-// Setup Google client
-$client = new Google_Client();
-$client->setClientId('441326189251-dfmo63tji30jgd83mer8vr7b20k8o28e.apps.googleusercontent.com');
-$client->setClientSecret('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');
-$client->setRedirectUri('http://localhost/PetShop/googleCallback.php');
-$client->addScope('email');
-$client->addScope('profile');
-
-// Handling the code returned from Google
-if (isset($_GET['code'])) {
-    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-
-    if (!isset($token['error'])) {
-        $client->setAccessToken($token['access_token']);
-        $oauth = new Google_Service_Oauth2($client);
-        $googleUser = $oauth->userinfo->get();
-
-        $email = $googleUser->email;
-        $name = $googleUser->name;
-
-        // Try to find the user
-        $existingUser = $db->users->findOne(['email' => $email]);
-
-        if (!$existingUser) {
-            // If user not found, create one
-            $insertResult = $db->users->insertOne([
-                'fullName' => $name,
-                'email' => $email,
-                'password' => password_hash(uniqid(), PASSWORD_DEFAULT),
-                'createdBy' => 'google',
-                'createdAt' => new MongoDB\BSON\UTCDateTime()
-            ]);
-
-            // Fetch the newly created user
-            $userId = $insertResult->getInsertedId();
-        } else {
-            // Use existing user ID
-            $userId = $existingUser->_id;
-        }
-
-        // Set full session
-        $_SESSION['user'] = [
-            'id' => (string) $userId,
-            'email' => $email,
-            'name' => $name,
-            'isAdmin' => $email === 'admin@admin.com'
-        ];
-
-        // Redirect to appropriate page
-        header('Location: ' . ($_SESSION['user']['isAdmin'] ? 'admin/dashboard.php' : 'index.php'));
-        exit;
-    } else {
-        echo "❌ Error fetching token: " . htmlspecialchars($token['error_description']);
-    }
-} else {
-    echo "❌ No authorization code returned from Google.";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-ob_end_flush();
+try {
+    // Create Google Client
+    $googleClient = new Google_Client();
+    $googleClient->setClientId('441326189251-dfmo63tji30jgd83mer8vr7b20k8o28e.apps.googleusercontent.com');
+    $googleClient->setClientSecret('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');
+    $googleClient->setRedirectUri('http://localhost/PetShop/googleCallback.php');
+    $googleClient->addScope('email');
+    $googleClient->addScope('profile');
+
+    if (!isset($_GET['code'])) {
+        header('Location: php/login.php?error=google_login');
+        exit;
+    }
+
+    $token = $googleClient->fetchAccessTokenWithAuthCode($_GET['code']);
+    if (isset($token['error'])) {
+        throw new Exception('Error fetching access token: ' . $token['error_description']);
+    }
+
+    $googleClient->setAccessToken($token);
+
+    $oauth2 = new Google_Service_Oauth2($googleClient);
+    $userInfo = $oauth2->userinfo->get();
+
+    $email = $userInfo->email ?? '';
+    $fullName = $userInfo->name ?? '';
+
+    if (empty($email)) {
+        throw new Exception('Google account missing email.');
+    }
+
+    // MongoDB client
+    $mongoClient = new MongoDB\Client;
+    $collection = $mongoClient->PetShopProject->users;
+    $existingUser = $collection->findOne(['email' => $email]);
+if (!$existingUser) {
+    $insertResult = $collection->insertOne([
+        'fullName' => $fullName,
+        'email' => $email,
+        'password' => '',
+        'authProvider' => 'google',
+        'createdAt' => new MongoDB\BSON\UTCDateTime()
+    ]);
+    $existingUser = $collection->findOne(['_id' => $insertResult->getInsertedId()]);
+}
+$_SESSION['user'] = [
+    'id' => (string)$existingUser['_id'], // 🔥 this is what myOrders.php needs
+    'name' => $existingUser['fullName'],
+    'email' => $existingUser['email'],
+    'isAdmin' => $existingUser['isAdmin'] ?? false
+];
+
+    // Redirect depending on role
+    if ($_SESSION['user']['isAdmin']) {
+        header('Location: admin/dashboard.php');
+    } else {
+        header('Location: index.php');
+    }
+    exit;
+
+} catch (Exception $e) {
+    error_log('Google Login Error: ' . $e->getMessage());
+    header('Location: php/login.php?error=google_login');
+    exit;
+}
 ?>

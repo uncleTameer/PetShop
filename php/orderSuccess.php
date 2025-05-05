@@ -20,7 +20,7 @@ if (!$order) {
 
 unset($_SESSION['last_order_id']);
 
-$userName = htmlspecialchars($_SESSION['user']['name']);
+$userName = htmlspecialchars($_SESSION['user']['name'] ?? $_SESSION['user']['fullName']);
 $orderTotal = number_format($order['total'], 2);
 $orderDate = $order['createdAt']->toDateTime()->format('d/m/Y H:i');
 ?>
@@ -48,6 +48,7 @@ $orderDate = $order['createdAt']->toDateTime()->format('d/m/Y H:i');
 <div class="container py-5 text-center">
   <h2 class="mb-4">✅ Thank you, <?= $userName ?>!</h2>
   <p class="lead">Your order was placed successfully.</p>
+  <p class="text-success">✉️ A confirmation email has been sent to <strong><?= htmlspecialchars($_SESSION['user']['email']) ?></strong>.</p>
 
   <div class="card my-4 mx-auto shadow" style="max-width: 600px;">
     <div class="card-body">

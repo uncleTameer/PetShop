@@ -1,22 +1,29 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require 'php/dbConnect.php';
 
 use MongoDB\BSON\ObjectId;
 
 // Check login
+if (!isset($_SESSION['user'])) {
+    echo "<script>
+         alert('Session expired. Please login again.');
+         window.location.href = 'php/login.php'; 
+    </script>";
+    exit;
+}
+
+// Recent Orders only if user has ID (local account)
+$recentOrders = [];
 if (isset($_SESSION['user']['id'])) {
     $userId = new ObjectId($_SESSION['user']['id']);
     $recentOrders = $db->orders->find(
         ['userId' => $userId],
         ['sort' => ['createdAt' => -1], 'limit' => 3]
     )->toArray();
-} else {
-    echo "<script>
-         alert('Session expired. Please login again.');
-         window.location.href = 'php/login.php'; 
-    </script>";
-    exit;
 }
 
 // Fun Facts
@@ -66,8 +73,9 @@ $recommendation = "🎯 Check out our latest horse saddles!";
   <div class="ms-auto">
     <?php if (isset($_SESSION['user'])): ?>
       <span class="navbar-text text-white me-3">
-        Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?>
+        Hello, <?= htmlspecialchars($_SESSION['user']['name'] ?? $_SESSION['user']['fullName'] ?? 'Guest') ?>
       </span>
+      <a href="myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a>
       <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
     <?php else: ?>
       <a href="php/register.php" class="btn btn-outline-light btn-sm me-2">Register</a>
@@ -82,11 +90,16 @@ $recommendation = "🎯 Check out our latest horse saddles!";
 
   <!-- Welcome Animation -->
   <div class="alert alert-primary animate__animated animate__fadeInDown">
-    👋 Welcome back, <?= htmlspecialchars($_SESSION['user']['name']) ?>!
+    👋 Welcome back, <?= htmlspecialchars($_SESSION['user']['name'] ?? $_SESSION['user']['fullName'] ?? 'User') ?>!
   </div>
 
   <h1 class="display-4 mb-3">Horse & Camel Shop</h1>
   <p class="lead mb-5">Find the best products for your pets 🐴🐫🐶🐱</p>
+
+  <!-- My Orders Button (Highlighted for UX) -->
+  <div class="mb-4">
+    <a href="myOrders.php" class="btn btn-outline-info btn-lg">📦 View Your Orders</a>
+  </div>
 
   <!-- Fun Fact -->
   <div class="alert alert-warning mx-auto" style="max-width: 600px;">

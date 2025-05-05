@@ -8,12 +8,18 @@ if (session_status() === PHP_SESSION_NONE) {
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $fullName = trim($_POST['fullName'] ?? '');
+    $firstName = trim($_POST['firstName'] ?? '');
+    $lastName = trim($_POST['lastName'] ?? '');
     $email = trim($_POST['email'] ?? '');
+    $confirmEmail = trim($_POST['confirmEmail'] ?? '');
     $password = $_POST['password'] ?? '';
+
+    $fullName = $firstName . ' ' . $lastName;
 
     if (!isset($_POST['terms'])) {
         $message = "❌ You must accept the Terms and Conditions.";
+    } elseif ($email !== $confirmEmail) {
+        $message = "❌ Emails do not match.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $message = "❌ Invalid email format.";
     } elseif (strlen($password) < 6) {
@@ -30,7 +36,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'fullName' => $fullName,
                 'email' => $email,
                 'password' => $hashedPassword,
-                'isAdmin' => $isAdmin
+                'isAdmin' => $isAdmin,
+                'authProvider' => 'local',
+                'createdAt' => new MongoDB\BSON\UTCDateTime()
             ]);
 
             if ($insert->getInsertedCount() === 1) {
@@ -50,7 +58,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -205,4 +212,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-

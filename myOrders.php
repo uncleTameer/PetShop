@@ -1,17 +1,19 @@
 <?php
 require_once 'php/dbConnect.php';
+
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
-if (!isset($_SESSION['user'])) {
-    header("Location: php/login.php");
-    exit;
+
+if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
+  header("Location: php/login.php");
+  exit;
 }
 
 use MongoDB\BSON\ObjectId;
 
 $userId = new ObjectId($_SESSION['user']['id']);
-$orders = $db->orders->find(['userId' => $userId], ['sort' => ['createdAt' => -1]]);
+$orders = $db->orders->find(['userId' => $userId], ['sort' => ['createdAt' => -1]])->toArray();
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +28,7 @@ $orders = $db->orders->find(['userId' => $userId], ['sort' => ['createdAt' => -1
 <nav class="navbar navbar-dark bg-dark px-4 mb-4">
   <a class="navbar-brand" href="index.php">⬅ Back to Homepage</a>
   <div class="ms-auto text-white">
-    <?= htmlspecialchars($_SESSION['user']['name']) ?>
+<?= htmlspecialchars($_SESSION['user']['name'] ?? $_SESSION['user']['fullName'] ?? 'Guest', ENT_QUOTES) ?>
     <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-3">Logout</a>
   </div>
 </nav>
@@ -34,7 +36,7 @@ $orders = $db->orders->find(['userId' => $userId], ['sort' => ['createdAt' => -1
 <div class="container py-4">
   <h2 class="text-center mb-4">📦 My Orders</h2>
 
-  <?php if (!$orders->isDead()): ?>
+<?php if (!empty($orders)): ?>
     <div class="table-responsive">
       <table class="table table-bordered text-center align-middle">
         <thead class="table-dark">
@@ -64,7 +66,7 @@ $orders = $db->orders->find(['userId' => $userId], ['sort' => ['createdAt' => -1
                   #<?= $idShort ?>
                 </a>
               </td>
-              <td>₪<?= number_format($order['total'], 2) ?></td>
+              <td>₪<?= number_format($order['total'] ?? 0, 2) ?></td>
               <td>
                 <span class="badge bg-<?= 
                   $status === 'Cancelled' ? 'danger' :
