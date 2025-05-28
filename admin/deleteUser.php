@@ -7,11 +7,10 @@ if (session_status() === PHP_SESSION_NONE) {
 use MongoDB\BSON\ObjectId;
 
 // Check if admin is logged in
-if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
+if ($_SESSION['user']['role'] !== 'admin') {
     header("Location: ../index.php");
     exit;
-}
-
+  }
 // Validate ID
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     $_SESSION['error_message'] = "❌ No user ID provided.";

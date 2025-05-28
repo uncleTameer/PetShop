@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Always clean leftover messages when loading login page
+// Always clean leftover messages
 unset($_SESSION['success_message']);
 unset($_SESSION['error_message']);
 
@@ -21,17 +21,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $db->users->findOne(['email' => $email]);
 
         if ($user) {
-            if (isset($user['suspended']) && $user['suspended'] === true) {
+            // ⛔ Suspension check
+            if (!empty($user['suspended']) && $user['suspended'] === true) {
                 $message = "⛔ Your account is suspended. Please contact support.";
             } elseif (password_verify($password, $user['password'])) {
+                // ✅ Role assignment
+                $role = $user['role'] ?? 'user';
+
                 $_SESSION['user'] = [
-                    'id' => (string)$user->_id,
-                    'name' => $user['fullName'],
-                    'email' => $user['email'],
-                    'isAdmin' => isset($user['isAdmin']) && $user['isAdmin'] === true
+                    'id'       => (string)$user->_id,
+                    'name'     => $user['fullName'],
+                    'email'    => $user['email'],
+                    'role'     => $role,
+                    'profilePicture' => $user['profilePicture'] ?? null
                 ];
+
                 $_SESSION['success_message'] = "🎉 Welcome back, " . htmlspecialchars($user['fullName']) . "!";
-                header("Location: ../" . ($_SESSION['user']['isAdmin'] ? "admin/dashboard.php" : "index.php"));
+
+                // ✅ Redirect based on role
+                if ($role === 'admin' || $role === 'moderator') {
+                    header("Location: ../admin/dashboard.php");
+                } else {
+                    header("Location: ../index.php");
+                }
                 exit;
             } else {
                 $message = "❌ Invalid email or password.";
@@ -42,6 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>

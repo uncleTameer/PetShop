@@ -1,46 +1,58 @@
 <?php
 require_once '../php/dbConnect.php';
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+if (session_status() === PHP_SESSION_NONE) session_start();
 
 use MongoDB\BSON\ObjectId;
 
-// Admin access required
-if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
-    header("Location: ../index.php");
-    exit;
-}
-
-$email = $_GET['email'] ?? null;
-$action = $_GET['action'] ?? null;
-
-if (!$email || !$action) {
-    $_SESSION['error_message'] = "❌ Missing information.";
+// Only admins and moderators can access
+if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'], ['admin', 'moderator'])) {
+    $_SESSION['error_message'] = "Unauthorized access.";
     header("Location: manageUsers.php");
     exit;
 }
 
-try {
-    $user = $db->users->findOne(['email' => $email]);
+$email = $_GET['email'] ?? '';
+$action = $_GET['action'] ?? '';
 
-    if (!$user) {
-        $_SESSION['error_message'] = "❌ User not found.";
-    } elseif ($email === $_SESSION['user']['email']) {
-        $_SESSION['error_message'] = "❌ You cannot suspend yourself!";
-    } else {
-        if ($action === 'suspend') {
-            $db->users->updateOne(['email' => $email], ['$set' => ['suspended' => true]]);
-            $_SESSION['success_message'] = "⛔ User suspended successfully.";
-        } elseif ($action === 'unsuspend') {
-            $db->users->updateOne(['email' => $email], ['$unset' => ['suspended' => ""]]);
-            $_SESSION['success_message'] = "🔓 User unsuspended successfully.";
-        } else {
-            $_SESSION['error_message'] = "❌ Invalid action.";
-        }
-    }
-} catch (Exception $e) {
-    $_SESSION['error_message'] = "❌ Error: " . $e->getMessage();
+if (empty($email) || !in_array($action, ['suspend', 'unsuspend'])) {
+    $_SESSION['error_message'] = "Invalid request.";
+    header("Location: manageUsers.php");
+    exit;
+}
+
+// Prevent suspending yourself
+if ($email === $_SESSION['user']['email']) {
+    $_SESSION['error_message'] = "You cannot suspend or unsuspend yourself.";
+    header("Location: manageUsers.php");
+    exit;
+}
+
+// Prevent moderators from suspending admins
+$user = $db->users->findOne(['email' => $email]);
+if (!$user) {
+    $_SESSION['error_message'] = "User not found.";
+    header("Location: manageUsers.php");
+    exit;
+}
+
+if ($_SESSION['user']['role'] === 'moderator' && ($user['role'] ?? 'user') === 'admin') {
+    $_SESSION['error_message'] = "Moderators cannot suspend admins.";
+    header("Location: manageUsers.php");
+    exit;
+}
+
+// Perform the action
+$update = $db->users->updateOne(
+    ['email' => $email],
+    ['$set' => ['suspended' => $action === 'suspend']]
+);
+
+if ($update->getModifiedCount() > 0) {
+    $_SESSION['success_message'] = $action === 'suspend'
+        ? "⛔ User has been suspended."
+        : "✅ User has been unsuspended.";
+} else {
+    $_SESSION['error_message'] = "No changes were made.";
 }
 
 header("Location: manageUsers.php");

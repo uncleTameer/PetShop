@@ -1,22 +1,82 @@
-.shop-btn {
-    transition: all 0.3s ease-in-out;
-    font-size: 1.2rem;
-    padding: 12px 28px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  }
-  
-  .shop-btn:hover {
-    background-color: #0d6efd;
-    color: #fff;
-    transform: scale(1.07);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
-  }  
-  
-  .hover-zoom {
-    transition: transform 0.3s ease;
-  }
-  .hover-zoom:hover {
-    transform: scale(1.03);
-  }
+/* General Body Styling */
+body {
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
 
+/* Shop Button Styling */
+.shop-btn {
+  transition: all 0.3s ease-in-out;
+  font-size: 1.2rem;
+  padding: 12px 28px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.shop-btn:hover {
+  background-color: #0d6efd;
+  color: #fff;
+  transform: scale(1.07);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover Zoom for Cards */
+.hover-zoom {
+  transition: transform 0.3s ease;
+}
+
+.hover-zoom:hover {
+  transform: scale(1.03);
+}
+
+/* Flash Message Fade-out Animation */
+.alert {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Chart Container */
+.chart-container {
+  max-width: 400px;
+  margin: auto;
+}
+
+/* Table Row Hover Effect */
+table tr:hover {
+  background-color: #f1f1f1;
+  transition: background-color 0.3s ease;
+}
+
+/* Profile Picture Styling in Navbar */
+.navbar img.rounded-circle {
+  width: 35px;
+  height: 35px;
+  object-fit: cover;
+}
+
+/* Section Divider */
+.section-divider {
+  height: 2px;
+  background: linear-gradient(to right, #0d6efd, #6610f2);
+  margin: 10px auto 30px;
+  width: 80px;
+  border-radius: 10px;
+}
+
+/* Button Hover Effects */
+.btn:hover {
+  transform: scale(1.02);
+  transition: transform 0.3s ease;
+}
+
+/* Small Rounded Profile Picture */
+.img-thumbnail {
+  border-radius: 8px;
+}
+
+/* Form Section Spacing */
+.form-section:not(:last-child) {
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+}

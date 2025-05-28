@@ -2,9 +2,9 @@
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
-if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
-    header("Location: ../index.php");
-    exit;
+if (!in_array($_SESSION['user']['role'], ['admin', 'moderator'])) {
+  header("Location: ../index.php");
+  exit;
 }
 
 $adminName = htmlspecialchars($_SESSION['user']['name']);

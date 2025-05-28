@@ -15,7 +15,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $confirmEmail = trim($_POST['confirmEmail'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    // Validation checks
     if (!isset($_POST['terms'])) {
         $message = "❌ You must accept the Terms and Conditions.";
     } elseif ($email !== $confirmEmail) {
@@ -30,25 +29,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "❌ Email already exists.";
         } else {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $isAdmin = (isset($_SESSION['user']['isAdmin']) && $_SESSION['user']['isAdmin'] && isset($_POST['isAdmin'])) ? true : false;
+
+            // Determine role (admins can promote others)
+            $role = 'user';
+            if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin') {
+                if (isset($_POST['role']) && in_array($_POST['role'], ['admin', 'moderator'])) {
+                    $role = $_POST['role'];
+                }
+            }
 
             $insert = $db->users->insertOne([
-                'fullName' => $fullName,
-                'email' => $email,
-                'password' => $hashedPassword,
-                'isAdmin' => $isAdmin,
-                'createdAt' => new MongoDB\BSON\UTCDateTime()  // ✅ Saving account creation time
+                'fullName'   => $fullName,
+                'email'      => $email,
+                'password'   => $hashedPassword,
+                'role'       => $role,
+                'createdAt'  => new MongoDB\BSON\UTCDateTime()
             ]);
 
             if ($insert->getInsertedCount() === 1) {
                 $_SESSION['user'] = [
-                    'id' => (string)$insert->getInsertedId(),
-                    'name' => $fullName,
+                    'id'    => (string)$insert->getInsertedId(),
+                    'name'  => $fullName,
                     'email' => $email,
-                    'isAdmin' => $isAdmin
+                    'role'  => $role
                 ];
                 $_SESSION['success_message'] = "🎉 Registration successful! Welcome, $fullName.";
-                header("Location: " . ($isAdmin ? "../admin/dashboard.php" : "../index.php"));
+                header("Location: " . ($role === 'admin' ? "../admin/dashboard.php" : "../index.php"));
                 exit;
             } else {
                 $message = "❌ Something went wrong. Please try again.";

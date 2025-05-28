@@ -31,7 +31,19 @@ $products = $db->products->find();
   <a class="navbar-brand" href="index.php">🏠 Pet Shop</a>
   <div class="ms-auto text-white">
     <?php if (isset($_SESSION['user'])): ?>
-      Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?>
+      <div class="d-flex align-items-center text-white me-2">
+        <?php if (!empty($_SESSION['user']['profilePicture'])): ?>
+          <img src="uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
+               alt="Profile" class="rounded-circle me-2" 
+               style="width: 35px; height: 35px; object-fit: cover;">
+        <?php else: ?>
+          <img src="uploads/default.png" 
+               alt="Default" class="rounded-circle me-2" 
+               style="width: 35px; height: 35px; object-fit: cover;">
+        <?php endif; ?>
+        <span>Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?></span>
+      </div>
+      <a href="editProfile.php" class="btn btn-outline-info btn-sm me-2">👤 Edit Profile</a>
       <a href="myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a> 
       <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
     <?php else: ?>

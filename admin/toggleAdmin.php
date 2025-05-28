@@ -3,10 +3,10 @@ require_once '../php/dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
+if ($_SESSION['user']['role'] !== 'admin') {
     header("Location: ../index.php");
     exit;
-}
+  }
 
 $email = $_GET['email'] ?? '';
 $make = $_GET['make'] ?? '';

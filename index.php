@@ -63,12 +63,23 @@ $recommendation = "🎯 Check out our latest horse saddles!";
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
   <a class="navbar-brand" href="#">Horse & Camel</a>
-  <div class="ms-auto">
+  <div class="ms-auto d-flex align-items-center gap-2">
+
     <?php if (isset($_SESSION['user'])): ?>
-      <span class="navbar-text text-white me-3">
-        Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?>
-      </span>
-      <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
+      <div class="d-flex align-items-center text-white me-2">
+        <?php if (!empty($_SESSION['user']['profilePicture'])): ?>
+          <img src="uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
+               alt="Profile" class="rounded-circle me-2" 
+               style="width: 35px; height: 35px; object-fit: cover;">
+        <?php else: ?>
+          <img src="uploads/default.png" 
+               alt="Default" class="rounded-circle me-2" 
+               style="width: 35px; height: 35px; object-fit: cover;">
+        <?php endif; ?>
+        <span>Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?></span>
+      </div>
+      <a href="editProfile.php" class="btn btn-outline-info btn-sm">👤 Edit Profile</a>
+      <a href="php/logout.php" class="btn btn-outline-light btn-sm">Logout</a>
     <?php else: ?>
       <a href="php/register.php" class="btn btn-outline-light btn-sm me-2">Register</a>
       <a href="php/login.php" class="btn btn-outline-light btn-sm">Login</a>
@@ -81,7 +92,7 @@ $recommendation = "🎯 Check out our latest horse saddles!";
 <div class="container mt-5 text-center">
 
   <!-- Welcome Animation -->
-  <div class="alert alert-primary animate__animated animate__fadeInDown">
+  <div class="alert alert-primary animate__animated animate__fadeInDown flash-message">
     👋 Welcome back, <?= htmlspecialchars($_SESSION['user']['name']) ?>!
   </div>
 
@@ -93,11 +104,10 @@ $recommendation = "🎯 Check out our latest horse saddles!";
     🐾 Fun Fact: <?= $randomFact ?>
   </div>
 
-  <!-- Featured Products Today (Advanced) -->
+  <!-- Featured Products Today -->
   <div class="mt-5">
     <h3 class="mb-4">🌟 Featured Products Today</h3>
     <div class="row justify-content-center g-4">
-
       <?php foreach ($featuredProducts as $product): ?>
         <div class="col-md-4">
           <div class="card shadow-sm h-100 hover-zoom">
@@ -112,7 +122,6 @@ $recommendation = "🎯 Check out our latest horse saddles!";
           </div>
         </div>
       <?php endforeach; ?>
-
     </div>
   </div>
 

@@ -6,10 +6,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 use MongoDB\BSON\ObjectId;
 
-if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
-    header("Location: ../index.php");
-    exit;
+if (!in_array($_SESSION['user']['role'], ['admin', 'moderator'])) {
+  header("Location: ../index.php");
+  exit;
 }
+
 
 if (!isset($_GET['id'])) {
     header("Location: manageProducts.php");
@@ -77,6 +78,16 @@ if (!$product) {
 
 <nav class="navbar navbar-dark bg-dark px-4">
   <a class="navbar-brand" href="manageProducts.php">⬅ Back to Products</a>
+  <div class="d-flex align-items-center text-white me-2">
+        <?php if (!empty($_SESSION['user']['profilePicture'])): ?>
+          <img src="uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
+               alt="Profile" class="rounded-circle me-2" 
+               style="width: 35px; height: 35px; object-fit: cover;">
+        <?php else: ?>
+          <img src="uploads/default.png" 
+               alt="Default" class="rounded-circle me-2" 
+               style="width: 35px; height: 35px; object-fit: cover;">
+        <?php endif; ?>
   <div class="ms-auto text-white">
     <?= htmlspecialchars($_SESSION['user']['name']) ?>
     <a href="../php/logout.php" class="btn btn-outline-light btn-sm ms-3">Logout</a>

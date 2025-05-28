@@ -4,10 +4,11 @@ if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
-if (!isset($_SESSION['user']) || !$_SESSION['user']['isAdmin']) {
-    header("Location: ../index.php");
-    exit;
+if (!in_array($_SESSION['user']['role'], ['admin', 'moderator'])) {
+  header("Location: ../index.php");
+  exit;
 }
+
 $filter = [];
 
 if (isset($_GET['lowStock']) && $_GET['lowStock'] == 1) {
@@ -28,7 +29,12 @@ $products = $db->products->find($filter);
 
 <nav class="navbar navbar-dark bg-dark px-4 mb-4">
   <a class="navbar-brand" href="dashboard.php">⬅ Back to Dashboard</a>
-  <div class="ms-auto text-white">
+  <div class="d-flex align-items-center ms-auto text-white">
+    <?php
+      $imgPath = '../uploads/' . ($_SESSION['user']['profilePicture'] ?? 'default.png');
+      if (!file_exists($imgPath)) $imgPath = '../uploads/default.png';
+    ?>
+    <img src="<?= $imgPath ?>" alt="Profile" class="rounded-circle me-2" style="width: 35px; height: 35px; object-fit: cover;">
     <?= htmlspecialchars($_SESSION['user']['name']) ?>
     <a href="../php/logout.php" class="btn btn-outline-light btn-sm ms-3">Logout</a>
   </div>
