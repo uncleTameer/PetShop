@@ -7,18 +7,19 @@ use PHPMailer\PHPMailer\Exception;
 
 function getMailer(): PHPMailer {
     $mail = new PHPMailer(true);
+    $mail->SMTPDebug = 0;
     
     // Server settings
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com'; // Replace with your SMTP
     $mail->SMTPAuth = true;
-    $mail->Username = 'your.email@gmail.com'; // Your email
-    $mail->Password = 'CamelAndHorse';    // App-specific password
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-    $mail->Port = 465;
+    $mail->Username = 'petshop.servicee@gmail.com'; // Shop email
+    $mail->Password = 'bzboeuozobackgda';    // New Gmail App Password (no spaces)
+    $mail->SMTPSecure = 'tls';
+    $mail->Port = 587;
 
     // Sender
-    $mail->setFrom('your.email@gmail.com', 'Pet Shop');
+    $mail->setFrom('petshop.servicee@gmail.com', 'PetShop Service');
 
     return $mail;
 }

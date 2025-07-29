@@ -7,7 +7,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = trim($_POST['message'] ?? '');
 
     if ($name && $email && $message) {
-        $_SESSION['success_message'] = "✅ Thank you, $name! Your message was received.";
+        require_once 'sendMail.php';
+        $mailResult = sendContactMail($name, $email, $message);
+        if ($mailResult === true) {
+            $_SESSION['success_message'] = "✅ Thank you, $name! Your message was received.";
+        } else {
+            $_SESSION['error_message'] = "❌ Failed to send message: $mailResult";
+        }
         header("Location: ../index.php");
         exit;
     } else {
