@@ -3,7 +3,14 @@ require 'php/dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
-$products = $db->products->find();
+
+// Search functionality
+$search = $_GET['search'] ?? '';
+if (!empty($search)) {
+    $products = $db->products->find(['name' => ['$regex' => $search, '$options' => 'i']]);
+} else {
+    $products = $db->products->find();
+}
 ?>
 
 <script>
@@ -43,9 +50,10 @@ $products = $db->products->find();
         <?php endif; ?>
         <span>Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?></span>
       </div>
-      <a href="editProfile.php" class="btn btn-outline-info btn-sm me-2">👤 Edit Profile</a>
-      <a href="myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a> 
-      <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
+                  <a href="editProfile.php" class="btn btn-outline-info btn-sm me-2">👤 Edit Profile</a>
+            <a href="myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a> 
+            <a href="wishlist.php" class="btn btn-outline-danger btn-sm ms-2">❤️ Wishlist</a>
+            <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
     <?php else: ?>
       <a href="php/login.php" class="btn btn-outline-light btn-sm me-2">Login</a>
       <a href="php/register.php" class="btn btn-outline-light btn-sm">Register</a>
@@ -70,26 +78,54 @@ $products = $db->products->find();
 
   <div class="container py-4">
     <h2 class="text-center mb-4">All Products</h2>
+    
+    <!-- Search Bar -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-md-6">
+        <form method="GET" action="shop.php" class="d-flex">
+          <input type="text" name="search" class="form-control me-2" 
+                 placeholder="Search products by name..." 
+                 value="<?= htmlspecialchars($search) ?>">
+          <button type="submit" class="btn btn-primary">🔍 Search</button>
+        </form>
+      </div>
+    </div>
+    
     <div class="row">
 
       <?php foreach ($products as $product): ?>
         <div class="col-md-4 mb-4">
           <div class="card h-100">
-            <img src="<?= $product['image'] ?>" class="card-img-top" alt="<?= $product['name'] ?>" style="height: 200px; object-fit: cover;">
+            <a href="product.php?id=<?= $product['_id'] ?>" class="text-decoration-none">
+              <img src="<?= $product['image'] ?>" class="card-img-top" alt="<?= $product['name'] ?>" style="height: 200px; object-fit: cover;">
+            </a>
             <div class="card-body">
-              <h5 class="card-title"><?= $product['name'] ?></h5>
+              <h5 class="card-title">
+                <a href="product.php?id=<?= $product['_id'] ?>" class="text-decoration-none text-dark">
+                  <?= $product['name'] ?>
+                </a>
+              </h5>
               <p class="card-text">₪<?= number_format($product['price'], 2) ?></p>
               <p class="card-text"><small class="text-muted">Stock: <?= $product['stock'] ?></small></p>
+              <div class="d-flex gap-2">
+                <a href="product.php?id=<?= $product['_id'] ?>" class="btn btn-outline-primary flex-fill">👁️ View Details</a>
                 <?php if ($product['stock'] > 0): ?>
-                  <form method="POST" action="php/addToCart.php">
+                  <form method="POST" action="php/addToCart.php" class="flex-fill">
                    <input type="hidden" name="productId" value="<?= $product['_id'] ?>">
                    <input type="hidden" name="name" value="<?= $product['name'] ?>">
                    <input type="hidden" name="price" value="<?= $product['price'] ?>">
                    <button type="submit" class="btn btn-primary w-100">🛒 Add to Cart</button>
                   </form>
-                  <?php else: ?>
-                    <button class="btn btn-secondary w-100" disabled>❌ Out of Stock</button>
+                <?php else: ?>
+                  <button class="btn btn-secondary w-100" disabled>❌ Out of Stock</button>
                 <?php endif; ?>
+                <?php if (isset($_SESSION['user'])): ?>
+                  <form method="POST" action="wishlist.php" class="flex-fill">
+                    <input type="hidden" name="productId" value="<?= $product['_id'] ?>">
+                    <button type="submit" name="add_to_wishlist" class="btn btn-outline-danger w-100">❤️ Wishlist</button>
+                  </form>
+                <?php endif; ?>
+              </div>
             </div>
           </div>
         </div>

@@ -21,32 +21,99 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $db->users->findOne(['email' => $email]);
 
         if ($user) {
-            // ⛔ Suspension check
-            if (!empty($user['suspended']) && $user['suspended'] === true) {
-                $message = "⛔ Your account is suspended. Please contact support.";
-            } elseif (password_verify($password, $user['password'])) {
-                // ✅ Role assignment
-                $role = $user['role'] ?? 'user';
-
-                $_SESSION['user'] = [
-                    'id'       => (string)$user->_id,
-                    'name'     => $user['fullName'],
-                    'email'    => $user['email'],
-                    'role'     => $role,
-                    'profilePicture' => $user['profilePicture'] ?? null
-                ];
-
-                $_SESSION['success_message'] = "🎉 Welcome back, " . htmlspecialchars($user['fullName']) . "!";
-
-                // ✅ Redirect based on role
-                if ($role === 'admin' || $role === 'moderator') {
-                    header("Location: ../admin/dashboard.php");
+            // Check if account is locked
+            if (!empty($user['locked']) && $user['locked'] === true) {
+                $lockoutTime = $user['lockoutTime'] ?? 0;
+                $currentTime = time();
+                $lockoutDuration = 15 * 60; // 15 minutes in seconds
+                
+                if ($currentTime - $lockoutTime < $lockoutDuration) {
+                    $remainingTime = ceil(($lockoutDuration - ($currentTime - $lockoutTime)) / 60);
+                    $message = "⛔ Account is locked due to multiple failed login attempts. Please try again in {$remainingTime} minutes.";
                 } else {
-                    header("Location: ../index.php");
+                    // Unlock account after timeout
+                    $db->users->updateOne(
+                        ['email' => $email],
+                        ['$unset' => ['locked' => '', 'lockoutTime' => '', 'loginAttempts' => '']]
+                    );
+                    $user['locked'] = false;
+                    $user['loginAttempts'] = 0;
                 }
-                exit;
-            } else {
-                $message = "❌ Invalid email or password.";
+            }
+            
+            // If account is not locked, proceed with login
+            if (empty($user['locked']) || $user['locked'] !== true) {
+                if (password_verify($password, $user['password'])) {
+                    // Reset login attempts on successful login
+                    $db->users->updateOne(
+                        ['email' => $email],
+                        ['$unset' => ['loginAttempts' => '', 'lockoutTime' => '']]
+                    );
+                    
+                    // ✅ Role assignment
+                    $role = $user['role'] ?? 'user';
+
+                    $_SESSION['user'] = [
+                        'id'       => (string)$user->_id,
+                        'name'     => $user['fullName'],
+                        'email'    => $user['email'],
+                        'role'     => $role,
+                        'profilePicture' => $user['profilePicture'] ?? null
+                    ];
+
+                    $_SESSION['success_message'] = "🎉 Welcome back, " . htmlspecialchars($user['fullName']) . "!";
+
+                    // ✅ Redirect based on role
+                    if ($role === 'admin') {
+                        header("Location: ../admin/dashboard.php");
+                    } else {
+                        header("Location: ../index.php");
+                    }
+                    exit;
+                } else {
+                    // Increment failed login attempts
+                    $loginAttempts = ($user['loginAttempts'] ?? 0) + 1;
+                    $maxAttempts = 3;
+                    
+                    if ($loginAttempts >= $maxAttempts) {
+                        // Lock account
+                        $db->users->updateOne(
+                            ['email' => $email],
+                            [
+                                '$set' => [
+                                    'locked' => true,
+                                    'lockoutTime' => time(),
+                                    'loginAttempts' => $loginAttempts
+                                ]
+                            ]
+                        );
+                        
+                        // Send notification to admins
+                        $admins = $db->users->find(['role' => 'admin'])->toArray();
+                        foreach ($admins as $admin) {
+                            $notification = [
+                                'type' => 'login_lockout',
+                                'userId' => $user->_id,
+                                'userEmail' => $email,
+                                'userName' => $user['fullName'],
+                                'timestamp' => new MongoDB\BSON\UTCDateTime(),
+                                'message' => "User {$user['fullName']} ({$email}) has been locked out due to multiple failed login attempts."
+                            ];
+                            $db->notifications->insertOne($notification);
+                        }
+                        
+                        $message = "⛔ Account locked due to multiple failed login attempts. Please try again in 15 minutes.";
+                    } else {
+                        // Update login attempts
+                        $db->users->updateOne(
+                            ['email' => $email],
+                            ['$set' => ['loginAttempts' => $loginAttempts]]
+                        );
+                        
+                        $remainingAttempts = $maxAttempts - $loginAttempts;
+                        $message = "❌ Invalid email or password. {$remainingAttempts} attempts remaining.";
+                    }
+                }
             }
         } else {
             $message = "❌ Invalid email or password.";
@@ -67,7 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <style>
     body {
       background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
-                  url('https://images.unsplash.com/photo-1549924231-f129b911e442?auto=format&fit=crop&w=1650&q=80') no-repeat center center fixed;
+                  url('https://sdmntprwestus.oaiusercontent.com/files/00000000-5334-6230-a493-b1ed1b78023a/raw?se=2025-07-29T15%3A42%3A01Z&sp=r&sv=2024-08-04&sr=b&scid=2a4aa1a8-1374-5eb8-be0d-eead747c67cf&skoid=789f404f-91a9-4b2f-932c-c44965c11d82&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-07-28T19%3A08%3A09Z&ske=2025-07-29T19%3A08%3A09Z&sks=b&skv=2024-08-04&sig=uaIMRfjGaX/1Wo1SYHkemAXuHuzIaWBCDTTFHbRrmqk%3D') no-repeat center center fixed;
       background-size: cover;
       min-height: 100vh;
       display: flex;

@@ -4,8 +4,8 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 
 use MongoDB\BSON\ObjectId;
 
-// Only admins and moderators can access
-if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'], ['admin', 'moderator'])) {
+// Only admins can access
+if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['error_message'] = "Unauthorized access.";
     header("Location: manageUsers.php");
     exit;
@@ -31,12 +31,6 @@ if ($email === $_SESSION['user']['email']) {
 $user = $db->users->findOne(['email' => $email]);
 if (!$user) {
     $_SESSION['error_message'] = "User not found.";
-    header("Location: manageUsers.php");
-    exit;
-}
-
-if ($_SESSION['user']['role'] === 'moderator' && ($user['role'] ?? 'user') === 'admin') {
-    $_SESSION['error_message'] = "Moderators cannot suspend admins.";
     header("Location: manageUsers.php");
     exit;
 }

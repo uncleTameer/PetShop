@@ -2,7 +2,7 @@
 require_once '../php/dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-if (!in_array($_SESSION['user']['role'], ['admin', 'moderator'])) {
+if (!in_array($_SESSION['user']['role'], ['admin'])) {
   header("Location: ../index.php");
   exit;
 }
@@ -89,7 +89,7 @@ $myEmail = $_SESSION['user']['email'];
           <td>
             <?php
               $role = $user['role'] ?? 'user';
-              $badgeClass = $role === 'admin' ? 'primary' : ($role === 'moderator' ? 'warning' : 'secondary');
+              $badgeClass = $role === 'admin' ? 'primary' : 'secondary';
             ?>
             <span class="badge bg-<?= $badgeClass ?>"><?= ucfirst($role) ?></span>
             <?php if (!empty($user['suspended'])): ?>
@@ -103,17 +103,13 @@ $myEmail = $_SESSION['user']['email'];
                   <!-- Role Promotion/Demotion -->
                   <?php if ($role === 'admin'): ?>
                     <a href="updateRole.php?email=<?= urlencode($user['email']) ?>&role=user" class="btn btn-sm btn-warning">Demote</a>
-                  <?php elseif ($role === 'moderator'): ?>
-                    <a href="updateRole.php?email=<?= urlencode($user['email']) ?>&role=admin" class="btn btn-sm btn-success">Promote to Admin</a>
-                    <a href="updateRole.php?email=<?= urlencode($user['email']) ?>&role=user" class="btn btn-sm btn-warning">Demote</a>
                   <?php else: ?>
-                    <a href="updateRole.php?email=<?= urlencode($user['email']) ?>&role=moderator" class="btn btn-sm btn-info">Promote to Mod</a>
                     <a href="updateRole.php?email=<?= urlencode($user['email']) ?>&role=admin" class="btn btn-sm btn-success">Promote to Admin</a>
                   <?php endif; ?>
                 <?php endif; ?>
 
                 <!-- Suspend/Unsuspend -->
-                <?php if (in_array($_SESSION['user']['role'], ['admin', 'moderator'])): ?>
+                <?php if (in_array($_SESSION['user']['role'], ['admin'])): ?>
                   <?php if (!empty($user['suspended'])): ?>
                     <a href="suspendUser.php?email=<?= urlencode($user['email']) ?>&action=unsuspend" class="btn btn-sm btn-info">🔓 Unsuspend</a>
                   <?php else: ?>

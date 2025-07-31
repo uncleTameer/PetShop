@@ -79,6 +79,7 @@ $recommendation = "🎯 Check out our latest horse saddles!";
         <span>Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?></span>
       </div>
       <a href="editProfile.php" class="btn btn-outline-info btn-sm">👤 Edit Profile</a>
+      <a href="wishlist.php" class="btn btn-outline-danger btn-sm">❤️ Wishlist</a>
       <a href="php/logout.php" class="btn btn-outline-light btn-sm">Logout</a>
     <?php else: ?>
       <a href="php/register.php" class="btn btn-outline-light btn-sm me-2">Register</a>
@@ -98,6 +99,24 @@ $recommendation = "🎯 Check out our latest horse saddles!";
 
   <h1 class="display-4 mb-3">Horse & Camel Shop</h1>
   <p class="lead mb-5">Find the best products for your pets 🐴🐫🐶🐱</p>
+
+  <!-- Video Section -->
+  <div class="mt-5 mb-4">
+    <h3 class="mb-4">🎬 Featured Video</h3>
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="ratio ratio-16x9">
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                  title="Featured Pet Care Video" 
+                  frameborder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen
+                  class="rounded shadow">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Fun Fact -->
   <div class="alert alert-warning mx-auto" style="max-width: 600px;">
@@ -129,6 +148,7 @@ $recommendation = "🎯 Check out our latest horse saddles!";
   <div class="d-flex flex-wrap justify-content-center gap-3 my-5">
     <a href="shop.php" class="btn btn-outline-primary shop-btn btn-lg">🛒 Shop Now</a>
     <a href="myOrders.php" class="btn btn-outline-success shop-btn btn-lg">📦 My Orders</a>
+    <a href="wishlist.php" class="btn btn-outline-danger shop-btn btn-lg">❤️ My Wishlist</a>
     <a href="contact.php" class="btn btn-outline-info shop-btn btn-lg">📬 Contact Us</a>
     <a href="shop.php#newArrivals" class="btn btn-outline-warning shop-btn btn-lg">🆕 New Arrivals</a>
   </div>

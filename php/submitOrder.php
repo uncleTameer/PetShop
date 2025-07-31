@@ -1,5 +1,7 @@
 <?php
 require_once('dbConnect.php');
+require_once('sendMail.php');
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -33,6 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     ];
 
     $result = $db->orders->insertOne($order);
+    $orderId = (string)$result->getInsertedId();
 
     // Decrease stock
     foreach ($cart as $item) {
@@ -42,8 +45,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         );
     }
 
+    // Send order confirmation email
+    $emailSent = sendOrderConfirmationEmail(
+        $_SESSION['user']['email'],
+        $_SESSION['user']['name'],
+        $orderId,
+        $cart,
+        $total
+    );
+
     unset($_SESSION['cart']);
     $_SESSION['last_order_id'] = $result->getInsertedId();
+    
+    if ($emailSent) {
+        $_SESSION['success_message'] = "Order placed successfully! Check your email for confirmation.";
+    } else {
+        $_SESSION['success_message'] = "Order placed successfully! (Email notification failed)";
+    }
+    
     header("Location: orderSuccess.php");
     exit;
 }

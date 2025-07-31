@@ -33,8 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Determine role (admins can promote others)
             $role = 'user';
             if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin') {
-                if (isset($_POST['role']) && in_array($_POST['role'], ['admin', 'moderator'])) {
-                    $role = $_POST['role'];
+                if (isset($_POST['role']) && $_POST['role'] === 'admin') {
+                    $role = 'admin';
                 }
             }
 

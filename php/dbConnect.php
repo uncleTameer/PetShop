@@ -10,8 +10,7 @@ try {
     $db = $client->PetShopProject;
 } catch (Exception $e) {
     echo "<div style='padding: 20px; background-color: #ffdddd; border: 1px solid red; color: darkred; font-family: sans-serif;'>
-            <strong>⚠️ Failed to connect to MongoDB!</strong><br>
-            " . htmlspecialchars($e->getMessage()) . "
+            <strong>⚠️ Failed to connect to the database. Please try again later.</strong>
           </div>";
     exit;
 }

@@ -4,9 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
-if (!in_array($_SESSION['user']['role'], ['admin', 'moderator'])) {
-  header("Location: ../index.php");
-  exit;
+if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+    header("Location: dashboard.php");
+    exit;
 }
 
 $filter = [];

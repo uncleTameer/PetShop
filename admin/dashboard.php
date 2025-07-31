@@ -3,9 +3,9 @@ require_once '../php/dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
-if (!in_array($_SESSION['user']['role'], ['admin', 'moderator'])) {
-  header("Location: ../index.php");
-  exit;
+if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+    header("Location: ../index.php");
+    exit;
 }
 
 
@@ -14,6 +14,7 @@ $productCount = $db->products->countDocuments();
 $userCount = $db->users->countDocuments();
 $orderCount = $db->orders->countDocuments();
 $lowStockCount = $db->products->countDocuments(['stock' => ['$lt' => 5]]);
+$unreadNotifications = $db->notifications->countDocuments(['read' => ['$ne' => true]]);
 
 // Query product order stats
 $pipeline = [
@@ -104,6 +105,18 @@ $leastOrdered = array_slice(array_reverse($productStats), 0, 5);
         </div>
       </a>
     </div>
+
+    <!-- Unread Notifications -->
+    <div class="col-md-3">
+      <a href="notifications.php" class="text-decoration-none">
+        <div class="card text-white bg-warning shadow-sm">
+          <div class="card-body text-center">
+            <h4><?= $unreadNotifications ?></h4>
+            <p class="card-text">Unread Notifications</p>
+          </div>
+        </div>
+      </a>
+    </div>
   </div>
 
   <!-- Most Ordered and Least Ordered Products -->
@@ -146,7 +159,15 @@ $leastOrdered = array_slice(array_reverse($productStats), 0, 5);
   </div>
 
   <div class="text-center mt-5">
-    <a href="orderReport.php" class="btn btn-outline-primary btn-lg">📊 View Full Order Report</a>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="orderReport.php" class="btn btn-outline-primary btn-lg">📊 View Full Order Report</a>
+      <a href="notifications.php" class="btn btn-outline-warning btn-lg">
+        🔔 System Notifications
+        <?php if ($unreadNotifications > 0): ?>
+          <span class="badge bg-danger ms-2"><?= $unreadNotifications ?></span>
+        <?php endif; ?>
+      </a>
+    </div>
   </div>
 
 

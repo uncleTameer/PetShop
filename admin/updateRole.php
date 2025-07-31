@@ -15,7 +15,7 @@ $email = $_GET['email'] ?? '';
 $newRole = $_GET['role'] ?? 'user';
 
 // Allow only valid roles
-$validRoles = ['user', 'moderator', 'admin'];
+$validRoles = ['user', 'admin'];
 if (!in_array($newRole, $validRoles)) {
     $_SESSION['error_message'] = "❌ Invalid role.";
     header("Location: manageUsers.php");

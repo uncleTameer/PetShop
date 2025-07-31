@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 use MongoDB\BSON\ObjectId;
 
 if (!isset($_SESSION['user']) || !isset($_SESSION['last_order_id'])) {
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit;
 }
 
@@ -23,25 +23,6 @@ unset($_SESSION['last_order_id']);
 $userName = htmlspecialchars($_SESSION['user']['name']);
 $orderTotal = number_format($order['total'], 2);
 $orderDate = $order['createdAt']->toDateTime()->format('d/m/Y H:i');
-
-// Send order confirmation email
-require_once 'sendMail.php';
-$toEmail = $_SESSION['user']['email'];
-$orderDetailsHtml = "<h3>Thank you for your order, $userName!</h3>"
-    . "<p><strong>Order ID:</strong> " . substr((string)
-    $order['_id'], -5) . "<br>"
-    . "<strong>Placed On:</strong> $orderDate<br>"
-    . "<strong>Total:</strong> ₪$orderTotal</p>"
-    . "<h4>Items:</h4><ul>";
-foreach ($order['items'] as $item) {
-    $orderDetailsHtml .= "<li>" . htmlspecialchars($item['name']) . " × " . $item['quantity'] . " (₪" . number_format($item['price'] * $item['quantity'], 2) . ")</li>";
-}
-$orderDetailsHtml .= "</ul>";
-$orderDetailsText = "Thank you for your order, $userName!\nOrder ID: " . substr((string)$order['_id'], -5) . "\nPlaced On: $orderDate\nTotal: ₪$orderTotal\nItems:\n";
-foreach ($order['items'] as $item) {
-    $orderDetailsText .= $item['name'] . " × " . $item['quantity'] . " (₪" . number_format($item['price'] * $item['quantity'], 2) . ")\n";
-}
-sendOrderConfirmationMail($toEmail, $userName, $orderDetailsHtml, $orderDetailsText);
 ?>
 
 <!DOCTYPE html>

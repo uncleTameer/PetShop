@@ -7,8 +7,8 @@ if (session_status() === PHP_SESSION_NONE) {
 use MongoDB\BSON\ObjectId;
 
 // Check admin permission
-if (!in_array($_SESSION['user']['role'], ['admin', 'moderator'])) {
-    header("Location: ../index.php");
+if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+    header("Location: dashboard.php");
     exit;
 }
 // Accept ID from GET or POST (either)
