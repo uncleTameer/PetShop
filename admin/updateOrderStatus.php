@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $orderId = $_POST['orderId'] ?? '';
   $status = $_POST['status'] ?? '';
 
-  if (!isValidObjectId($orderId) || !in_array($status, ['Pending', 'Shipped', 'Cancelled'])) {
+  if (!isValidObjectId($orderId) || !in_array($status, ['Pending', 'Shipped', 'Cancelled', 'Delivered'])) {
     $_SESSION['error_message'] = "❌ Invalid request data.";
     header("Location: manageOrders.php");
     exit;

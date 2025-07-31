@@ -18,6 +18,7 @@ function filterOrdersByStatus($orders, $status) {
 $pending = filterOrdersByStatus($orders, 'Pending');
 $shipped = filterOrdersByStatus($orders, 'Shipped');
 $cancelled = filterOrdersByStatus($orders, 'Cancelled');
+$delivered = filterOrdersByStatus($orders, 'Delivered');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -90,6 +91,36 @@ $cancelled = filterOrdersByStatus($orders, 'Cancelled');
             <td><?= htmlspecialchars($order['status']) ?></td>
             <td>
               <button class="btn btn-sm btn-outline-info" onclick="loadOrderDetails('<?= $order['_id'] ?>')">🔍 View</button>
+              <form method="POST" action="updateOrderStatus.php" style="display:inline-block;">
+                <input type="hidden" name="orderId" value="<?= $order['_id'] ?>">
+                <input type="hidden" name="status" value="Delivered">
+                <button type="submit" class="btn btn-sm btn-success ms-2" onclick="return confirm('Mark this order as delivered?')">✅ Mark as Delivered</button>
+              </form>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+    <!-- Delivered -->
+    <div class="col-md-12 mt-5">
+      <h5 class="text-info text-center">📬 Delivered Successfully</h5>
+      <table id="deliveredOrders" class="table table-bordered table-striped text-center align-middle">
+        <thead class="table-dark">
+          <tr><th>ID</th><th>Customer</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+        <?php foreach ($delivered as $order): 
+          $user = $db->users->findOne(['_id' => $order['userId']]);
+          $name = $user['fullName'] ?? 'Unknown';
+          $shortId = substr((string)$order['_id'], -5);
+        ?>
+          <tr>
+            <td><?= $shortId ?></td>
+            <td><?= htmlspecialchars($name) ?></td>
+            <td><?= htmlspecialchars($order['status']) ?></td>
+            <td>
+              <button class="btn btn-sm btn-outline-info" onclick="loadOrderDetails('<?= $order['_id'] ?>')">🔍 View</button>
             </td>
           </tr>
         <?php endforeach; ?>
@@ -143,7 +174,7 @@ $cancelled = filterOrdersByStatus($orders, 'Cancelled');
 <script src="../js/bootstrap.bundle.min.js"></script>
 <script>
 $(function () {
-  $('#pendingOrders, #shippedOrders, #cancelledOrders').DataTable({ pageLength: 5 });
+  $('#pendingOrders, #shippedOrders, #cancelledOrders, #deliveredOrders').DataTable({ pageLength: 5 });
 
   // Alert fade
   $('.alert').each(function () {
