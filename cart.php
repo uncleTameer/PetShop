@@ -46,7 +46,8 @@ $total = 0;
   <?php if (empty($cart)): ?>
     <div class="alert alert-info text-center">Your cart is empty.</div>
   <?php else: ?>
-    <form method="POST" action="php/updateCart.php">
+    <form method="POST" action="php/cartOperations.php">
+<input type="hidden" name="action" value="update">
       <table class="table table-bordered text-center align-middle">
         <thead class="table-dark">
           <tr>
@@ -70,7 +71,7 @@ $total = 0;
               </td>
               <td>₪<?= number_format($subtotal, 2) ?></td>
               <td>
-                <a href="php/removeFromCart.php?id=<?= $id ?>" class="btn btn-sm btn-danger">❌ Remove</a>
+                <a href="php/cartOperations.php?action=remove&id=<?= $id ?>" class="btn btn-sm btn-danger">❌ Remove</a>
               </td>
             </tr>
           <?php endforeach; ?>

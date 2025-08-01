@@ -168,7 +168,8 @@ $wishlistItems = $db->wishlist->aggregate([
                             
                             <div class="d-flex gap-2">
                                 <?php if ($item['product']['stock'] > 0): ?>
-                                    <form method="POST" action="php/addToCart.php" class="flex-fill">
+                                    <form method="POST" action="php/cartOperations.php" class="flex-fill">
+<input type="hidden" name="action" value="add">
                                         <input type="hidden" name="productId" value="<?= $item['product']['_id'] ?>">
                                         <input type="hidden" name="name" value="<?= $item['product']['name'] ?>">
                                         <input type="hidden" name="price" value="<?= $item['product']['price'] ?>">

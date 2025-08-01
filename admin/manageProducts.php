@@ -4,8 +4,39 @@ if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
+use MongoDB\BSON\ObjectId;
+
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     header("Location: dashboard.php");
+    exit;
+}
+
+// Handle delete action
+if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
+    $id = $_GET['id'];
+    
+    try {
+        $product = $db->products->findOne(['_id' => new ObjectId($id)]);
+
+        if (!$product) {
+            $_SESSION['error_message'] = "❌ Product not found.";
+        } else {
+            // Delete image if exists
+            if (isset($product['image'])) {
+                $imagePath = '../' . $product['image'];
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+
+            $db->products->deleteOne(['_id' => new ObjectId($id)]);
+            $_SESSION['success_message'] = "🗑️ Product deleted successfully.";
+        }
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = "❌ Error: " . $e->getMessage();
+    }
+    
+    header("Location: manageProducts.php");
     exit;
 }
 
@@ -84,7 +115,7 @@ $products = $db->products->find($filter);
           </td>
           <td>
             <a href="editProduct.php?id=<?= $product['_id'] ?>" class="btn btn-warning btn-sm">✏️ Edit</a>
-            <a href="deleteProduct.php?id=<?= $product['_id'] ?>&redirect=manageProducts.php" 
+            <a href="manageProducts.php?action=delete&id=<?= $product['_id'] ?>" 
                class="btn btn-danger btn-sm delete-btn"
                onclick="return confirm('Are you sure you want to delete this product?')">
                🗑️ Delete

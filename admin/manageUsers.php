@@ -102,24 +102,24 @@ $myEmail = $_SESSION['user']['email'];
                 <?php if ($_SESSION['user']['role'] === 'admin'): ?>
                   <!-- Role Promotion/Demotion -->
                   <?php if ($role === 'admin'): ?>
-                    <a href="updateRole.php?email=<?= urlencode($user['email']) ?>&role=user" class="btn btn-sm btn-warning">Demote</a>
+                    <a href="userOperations.php?action=updateRole&email=<?= urlencode($user['email']) ?>&role=user" class="btn btn-sm btn-warning">Demote</a>
                   <?php else: ?>
-                    <a href="updateRole.php?email=<?= urlencode($user['email']) ?>&role=admin" class="btn btn-sm btn-success">Promote to Admin</a>
+                    <a href="userOperations.php?action=updateRole&email=<?= urlencode($user['email']) ?>&role=admin" class="btn btn-sm btn-success">Promote to Admin</a>
                   <?php endif; ?>
                 <?php endif; ?>
 
                 <!-- Suspend/Unsuspend -->
                 <?php if (in_array($_SESSION['user']['role'], ['admin'])): ?>
                   <?php if (!empty($user['suspended'])): ?>
-                    <a href="suspendUser.php?email=<?= urlencode($user['email']) ?>&action=unsuspend" class="btn btn-sm btn-info">🔓 Unsuspend</a>
+                    <a href="userOperations.php?action=suspend&email=<?= urlencode($user['email']) ?>&suspendAction=unsuspend" class="btn btn-sm btn-info">🔓 Unsuspend</a>
                   <?php else: ?>
-                    <a href="suspendUser.php?email=<?= urlencode($user['email']) ?>&action=suspend" class="btn btn-sm btn-secondary">⛔ Suspend</a>
+                    <a href="userOperations.php?action=suspend&email=<?= urlencode($user['email']) ?>&suspendAction=suspend" class="btn btn-sm btn-secondary">⛔ Suspend</a>
                   <?php endif; ?>
                 <?php endif; ?>
 
                 <!-- Delete (Admins only) -->
                 <?php if ($_SESSION['user']['role'] === 'admin'): ?>
-                  <a href="deleteUser.php?id=<?= $user['_id'] ?>" class="btn btn-sm btn-outline-danger"
+                  <a href="userOperations.php?action=delete&id=<?= $user['_id'] ?>" class="btn btn-sm btn-outline-danger"
                     onclick="return confirm('Are you sure you want to delete this user?');">🗑️ Delete</a>
                 <?php endif; ?>
               </div>
