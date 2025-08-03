@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (!empty($user['locked']) && $user['locked'] === true) {
                 $lockoutTime = $user['lockoutTime'] ?? 0;
                 $currentTime = time();
-                $lockoutDuration = 15 * 60; // 15 minutes in seconds
+                $lockoutDuration = 10; // 15 minutes in seconds
                 
                 if ($currentTime - $lockoutTime < $lockoutDuration) {
                     $remainingTime = ceil(($lockoutDuration - ($currentTime - $lockoutTime)) / 60);

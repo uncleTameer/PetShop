@@ -29,14 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contact_form'])) {
 }
 
 function sendOrderConfirmationEmail($userEmail, $userName, $orderId, $orderDetails, $total) {
-    try {
-        $mail = getMailer();
-        
+try {
+    $mail = getMailer();
+
         // Recipients
         $mail->addAddress($userEmail, $userName);
-        
-        // Content
-        $mail->isHTML(true);
+
+    // Content
+    $mail->isHTML(true);
         $mail->Subject = 'Order Confirmation - Horse & Camel Shop';
         
         // Create HTML email body
@@ -45,10 +45,10 @@ function sendOrderConfirmationEmail($userEmail, $userName, $orderId, $orderDetai
         
         // Plain text version
         $mail->AltBody = createOrderEmailText($userName, $orderId, $orderDetails, $total);
-        
-        $mail->send();
+
+    $mail->send();
         return true;
-    } catch (Exception $e) {
+} catch (Exception $e) {
         error_log("Email sending failed: {$mail->ErrorInfo}");
         return false;
     }
