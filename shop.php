@@ -110,11 +110,11 @@ if (!empty($search)) {
               <div class="d-flex gap-2">
                 <a href="product.php?id=<?= $product['_id'] ?>" class="btn btn-outline-primary flex-fill">👁️ View Details</a>
                 <?php if ($product['stock'] > 0): ?>
-                  <form method="POST" action="php/addToCart.php" class="flex-fill">
-                    <input type="hidden" name="name" value="<?= $product['name'] ?>">
-                    <input type="hidden" name="redirect" value="shop.php">
-                    <button type="submit" class="btn btn-primary w-100">🛒 Add to Cart</button>
-                  </form>
+                                     <form class="flex-fill cart-form">
+                     <input type="hidden" name="action" value="add">
+                     <input type="hidden" name="name" value="<?= $product['name'] ?>">
+                     <button type="submit" class="btn btn-primary w-100">🛒 Add to Cart</button>
+                   </form>
                 <?php else: ?>
                   <button class="btn btn-secondary w-100" disabled>❌ Out of Stock</button>
                 <?php endif; ?>
@@ -132,6 +132,87 @@ if (!empty($search)) {
     </div>
   </div>
 
+  <!-- Toast Notification -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">🛒 Cart Update</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="toastMessage">
+        <!-- Message will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle cart form submissions
+    document.querySelectorAll('.cart-form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const button = this.querySelector('button[type="submit"]');
+        const originalText = button.innerHTML;
+        
+        // Show loading state
+        button.innerHTML = '⏳ Adding...';
+        button.disabled = true;
+        
+        fetch('php/cartOperations.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Show toast message
+          const toast = document.getElementById('cartToast');
+          const toastMessage = document.getElementById('toastMessage');
+          
+          if (data.success) {
+            toastMessage.innerHTML = `
+              <div class="text-success">
+                <strong>✅ ${data.message}</strong><br>
+                <small>Items in cart: ${data.cartCount}</small>
+              </div>
+            `;
+            // Update cart count in navbar if it exists
+            const cartButton = document.querySelector('a[href="cart.php"]');
+            if (cartButton) {
+              cartButton.innerHTML = `🛒 Cart (${data.cartCount})`;
+            }
+          } else {
+            toastMessage.innerHTML = `
+              <div class="text-danger">
+                <strong>❌ ${data.message}</strong>
+              </div>
+            `;
+          }
+          
+          // Show the toast
+          const bsToast = new bootstrap.Toast(toast);
+          bsToast.show();
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          toastMessage.innerHTML = `
+            <div class="text-danger">
+              <strong>❌ An error occurred. Please try again.</strong>
+            </div>
+          `;
+          const bsToast = new bootstrap.Toast(toast);
+          bsToast.show();
+        })
+        .finally(() => {
+          // Restore button state
+          button.innerHTML = originalText;
+          button.disabled = false;
+        });
+      });
+    });
+  });
+  </script>
   
 </body>
 </html>

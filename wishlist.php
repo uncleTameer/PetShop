@@ -168,9 +168,9 @@ $wishlistItems = $db->wishlist->aggregate([
                             
                             <div class="d-flex gap-2">
                                 <?php if ($item['product']['stock'] > 0): ?>
-                                                                         <form method="POST" action="php/addToCart.php" class="flex-fill">
+                                                                         <form class="flex-fill cart-form">
+                                         <input type="hidden" name="action" value="add">
                                          <input type="hidden" name="name" value="<?= $item['product']['name'] ?>">
-                                         <input type="hidden" name="redirect" value="wishlist.php">
                                          <button type="submit" class="btn btn-primary w-100">🛒 Add to Cart</button>
                                      </form>
                                 <?php else: ?>
@@ -194,7 +194,72 @@ $wishlistItems = $db->wishlist->aggregate([
     <?php endif; ?>
 </div>
 
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Cart Update</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="cartToastBody">
+        </div>
+    </div>
+</div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle cart form submissions
+    document.querySelectorAll('.cart-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const button = this.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '⏳ Adding...';
+            button.disabled = true;
+            
+            fetch('php/cartOperations.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Show toast notification
+                const toastBody = document.getElementById('cartToastBody');
+                const toast = new bootstrap.Toast(document.getElementById('cartToast'));
+                
+                if (data.success) {
+                    toastBody.innerHTML = `<span class="text-success">✅ ${data.message}</span>`;
+                    // Update cart count in navbar
+                    const cartLink = document.querySelector('a[href="cart.php"]');
+                    if (cartLink) {
+                        cartLink.innerHTML = `🛒 Cart (${data.cartCount})`;
+                    }
+                } else {
+                    toastBody.innerHTML = `<span class="text-danger">❌ ${data.message}</span>`;
+                }
+                
+                toast.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const toastBody = document.getElementById('cartToastBody');
+                const toast = new bootstrap.Toast(document.getElementById('cartToast'));
+                toastBody.innerHTML = '<span class="text-danger">❌ An error occurred</span>';
+                toast.show();
+            })
+            .finally(() => {
+                // Restore button state
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        });
+    });
+});
+</script>
 
 </body>
 </html>
