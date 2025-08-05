@@ -47,8 +47,7 @@ $total = 0;
   <?php if (empty($cart)): ?>
     <div class="alert alert-info text-center">Your cart is empty.</div>
   <?php else: ?>
-    <form id="updateCartForm">
-      <input type="hidden" name="action" value="update">
+    <form method="POST" action="php/updateCart.php">
       <table class="table table-bordered text-center align-middle">
         <thead class="table-dark">
           <tr>
@@ -72,7 +71,10 @@ $total = 0;
               </td>
               <td>₪<?= number_format($subtotal, 2) ?></td>
               <td>
-                <button class="btn btn-sm btn-danger remove-item" data-product-id="<?= $id ?>">❌ Remove</button>
+                <form method="POST" action="php/removeFromCart.php" style="display: inline;">
+                  <input type="hidden" name="productId" value="<?= $id ?>">
+                  <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove this item?')">❌ Remove</button>
+                </form>
               </td>
             </tr>
           <?php endforeach; ?>
@@ -212,19 +214,6 @@ $total = 0;
   </div>
 </div>
 
-<!-- Toast Notification -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header">
-      <strong class="me-auto">🛒 Cart Update</strong>
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-    <div class="toast-body" id="toastMessage">
-      <!-- Message will be inserted here -->
-    </div>
-  </div>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Credit card form formatting and validation
@@ -278,171 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 2000);
     });
   }
-  // Handle cart update form
-  const updateCartForm = document.getElementById('updateCartForm');
-  if (updateCartForm) {
-    updateCartForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      const button = this.querySelector('button[type="submit"]');
-      const originalText = button.innerHTML;
-      
-      // Show loading state
-      button.innerHTML = '⏳ Updating...';
-      button.disabled = true;
-      
-      fetch('php/cartOperations.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        // Show toast message
-        const toast = document.getElementById('cartToast');
-        const toastMessage = document.getElementById('toastMessage');
-        
-        if (data.success) {
-          // Update cart count in navbar
-          const cartButton = document.querySelector('a[href="cart.php"]');
-          if (cartButton) {
-            cartButton.innerHTML = `🛒 Cart (${data.cartCount})`;
-          }
-          
-          // Update total in footer
-          const totalCell = document.querySelector('tfoot th:nth-child(4)');
-          if (totalCell) {
-            totalCell.textContent = `₪${data.newTotal}`;
-          }
-          
-          toastMessage.innerHTML = `
-            <div class="text-success">
-              <strong>✅ ${data.message}</strong><br>
-              <small>New total: ₪${data.newTotal}</small>
-            </div>
-          `;
-        } else {
-          toastMessage.innerHTML = `
-            <div class="text-danger">
-              <strong>❌ ${data.message}</strong>
-            </div>
-          `;
-        }
-        
-        // Show the toast
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        const toast = document.getElementById('cartToast');
-        const toastMessage = document.getElementById('toastMessage');
-        toastMessage.innerHTML = `
-          <div class="text-danger">
-            <strong>❌ An error occurred. Please try again.</strong>
-          </div>
-        `;
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-      })
-      .finally(() => {
-        // Restore button state
-        button.innerHTML = originalText;
-        button.disabled = false;
-      });
-    });
-  }
-
-  // Handle remove item buttons
-  document.querySelectorAll('.remove-item').forEach(button => {
-    button.addEventListener('click', function() {
-      const productId = this.getAttribute('data-product-id');
-      const row = this.closest('tr');
-      const originalText = this.innerHTML;
-      
-      // Show loading state
-      this.innerHTML = '⏳ Removing...';
-      this.disabled = true;
-      
-      fetch(`php/cartOperations.php?action=remove&id=${productId}`, {
-        method: 'GET'
-      })
-      .then(response => response.json())
-      .then(data => {
-        // Show toast message
-        const toast = document.getElementById('cartToast');
-        const toastMessage = document.getElementById('toastMessage');
-        
-        if (data.success) {
-          // Remove the row from the table
-          row.remove();
-          
-          // Update cart count in navbar
-          const cartButton = document.querySelector('a[href="cart.php"]');
-          if (cartButton) {
-            cartButton.innerHTML = `🛒 Cart (${data.cartCount})`;
-          }
-          
-          // Check if cart is empty
-          const tbody = document.querySelector('tbody');
-          if (tbody.children.length === 0) {
-            location.reload(); // Reload to show empty cart message
-            return;
-          }
-          
-          // Recalculate total
-          let total = 0;
-          document.querySelectorAll('tbody tr').forEach(row => {
-            const subtotalText = row.querySelector('td:nth-child(4)').textContent;
-            const subtotal = parseFloat(subtotalText.replace('₪', '').replace(',', ''));
-            total += subtotal;
-          });
-          
-          // Update total in footer
-          const totalCell = document.querySelector('tfoot th:nth-child(4)');
-          if (totalCell) {
-            totalCell.textContent = `₪${total.toFixed(2)}`;
-          }
-          
-          toastMessage.innerHTML = `
-            <div class="text-success">
-              <strong>✅ ${data.message}</strong><br>
-              <small>Items in cart: ${data.cartCount}</small>
-            </div>
-          `;
-        } else {
-          toastMessage.innerHTML = `
-            <div class="text-danger">
-              <strong>❌ ${data.message}</strong>
-            </div>
-          `;
-        }
-        
-        // Show the toast
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        const toast = document.getElementById('cartToast');
-        const toastMessage = document.getElementById('toastMessage');
-        toastMessage.innerHTML = `
-          <div class="text-danger">
-            <strong>❌ An error occurred. Please try again.</strong>
-          </div>
-        `;
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-      })
-      .finally(() => {
-        // Restore button state if not removed
-        if (this.parentNode) {
-          this.innerHTML = originalText;
-          this.disabled = false;
-        }
-      });
-    });
-  });
 });
 </script>
 
