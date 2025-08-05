@@ -1,6 +1,6 @@
 <?php
 require_once('dbConnect.php');
-require_once('sendMail.php');
+require_once('emailSystem.php');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -19,6 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
+    // Convert cart to array format for database storage
     $cart = array_values($_SESSION['cart']);
     $total = 0;
 
@@ -46,18 +47,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     // Send order confirmation email
-    $emailSent = sendOrderConfirmationEmail(
+    $orderDetailsHtml = "<h3>Thank you for your order, " . htmlspecialchars($_SESSION['user']['name']) . "!</h3>"
+        . "<p><strong>Order ID:</strong> " . substr($orderId, -5) . "<br>"
+        . "<strong>Total:</strong> ₪" . number_format($total, 2) . "</p>"
+        . "<h4>Items:</h4><ul>";
+    foreach ($cart as $item) {
+        $orderDetailsHtml .= "<li>" . htmlspecialchars($item['name']) . " × " . $item['quantity'] . " (₪" . number_format($item['price'] * $item['quantity'], 2) . ")</li>";
+    }
+    $orderDetailsHtml .= "</ul>";
+    
+    $orderDetailsText = "Thank you for your order, " . $_SESSION['user']['name'] . "!\nOrder ID: " . substr($orderId, -5) . "\nTotal: ₪" . number_format($total, 2) . "\nItems:\n";
+    foreach ($cart as $item) {
+        $orderDetailsText .= $item['name'] . " × " . $item['quantity'] . " (₪" . number_format($item['price'] * $item['quantity'], 2) . ")\n";
+    }
+    
+    $emailSent = sendOrderConfirmationMail(
         $_SESSION['user']['email'],
         $_SESSION['user']['name'],
-        $orderId,
-        $cart,
-        $total
+        $orderDetailsHtml,
+        $orderDetailsText
     );
 
     unset($_SESSION['cart']);
     $_SESSION['last_order_id'] = $result->getInsertedId();
     
-    if ($emailSent) {
+    if ($emailSent === true) {
         $_SESSION['success_message'] = "Order placed successfully! Check your email for confirmation.";
     } else {
         $_SESSION['success_message'] = "Order placed successfully! (Email notification failed)";

@@ -46,7 +46,7 @@ session_start();
         We usually reply within 24 hours!
       </div>
 
-      <form action="php/sendMail.php" method="POST" class="border p-4 rounded shadow-sm bg-light">
+      <form action="php/emailSystem.php" method="POST" class="border p-4 rounded shadow-sm bg-light">
 <input type="hidden" name="contact_form" value="1">
         <div class="mb-3">
           <label for="name" class="form-label">Your Name</label>

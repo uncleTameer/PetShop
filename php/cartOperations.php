@@ -1,9 +1,12 @@
 <?php
-require 'dbConnect.php';
+require_once 'dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-use MongoDB\BSON\ObjectId;
+
+// ============================================================================
+// Cart Operations Handler
+// ============================================================================
 
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
@@ -11,86 +14,157 @@ switch ($action) {
     case 'add':
         handleAddToCart();
         break;
-    case 'update':
-        handleUpdateCart();
-        break;
     case 'remove':
         handleRemoveFromCart();
         break;
+    case 'update':
+        handleUpdateCart();
+        break;
     default:
-        header("Location: ../cart.php");
+        echo json_encode(['success' => false, 'message' => 'Invalid action']);
         exit;
 }
+
+// ============================================================================
+// Add to Cart Function
+// ============================================================================
 
 function handleAddToCart() {
     global $db;
     
-    $productId = $_POST['productId'] ?? null;
-
-    if (!$productId) {
-        header("Location: ../shop.php");
+    if (!isset($_SESSION['user'])) {
+        echo json_encode(['success' => false, 'message' => 'Please login first']);
         exit;
     }
 
-    // Fetch product info from DB
-    $product = $db->products->findOne(['_id' => new ObjectId($productId)]);
+    $productName = $_POST['name'] ?? '';
+    $quantity = (int)($_POST['quantity'] ?? 1);
 
-    if (!$product || $product['stock'] <= 0) {
-        $_SESSION['error_message'] = "⚠️ This product is out of stock.";
-        header("Location: ../shop.php");
+    if (!$productName) {
+        echo json_encode(['success' => false, 'message' => 'Product name required']);
         exit;
     }
 
-    // Get current quantity in cart
-    $currentQtyInCart = $_SESSION['cart'][$productId]['quantity'] ?? 0;
-
-    // If adding another one would exceed stock — block it
-    if ($currentQtyInCart + 1 > $product['stock']) {
-        $_SESSION['error_message'] = "⚠️ Only {$product['stock']} left in stock. You already have $currentQtyInCart in your cart.";
-        header("Location: ../shop.php");
+    // Get product details
+    $product = $db->products->findOne(['name' => $productName]);
+    
+    if (!$product) {
+        echo json_encode(['success' => false, 'message' => 'Product not found']);
         exit;
     }
 
-    // Add or update cart
+    // Check stock
+    if ($product['stock'] < $quantity) {
+        echo json_encode(['success' => false, 'message' => 'Not enough stock available']);
+        exit;
+    }
+
+    // Initialize cart if not exists
     if (!isset($_SESSION['cart'])) {
         $_SESSION['cart'] = [];
     }
 
+    // Check if product already in cart
+    $productId = (string)$product['_id'];
+    
     if (isset($_SESSION['cart'][$productId])) {
-        $_SESSION['cart'][$productId]['quantity'] += 1;
+        // Update existing item quantity
+        $_SESSION['cart'][$productId]['quantity'] += $quantity;
     } else {
+        // Add new item
         $_SESSION['cart'][$productId] = [
-            'name' => $product['name'],
+            'name' => $productName,
             'price' => $product['price'],
-            'quantity' => 1
+            'quantity' => $quantity,
+            'image' => $product['image'] ?? 'default.png'
         ];
     }
 
-    $_SESSION['success_message'] = "{$product['name']} added to cart!";
-    header("Location: ../shop.php");
-    exit;
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Added to cart successfully',
+        'cartCount' => count($_SESSION['cart'])
+    ]);
 }
 
-function handleUpdateCart() {
-    if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['quantities'])) {
-        foreach ($_POST['quantities'] as $id => $qty) {
-            if (isset($_SESSION['cart'][$id]) && $qty > 0) {
-                $_SESSION['cart'][$id]['quantity'] = intval($qty);
-            }
-        }
-    }
-    header("Location: ../cart.php");
-    exit;
-}
+// ============================================================================
+// Remove from Cart Function
+// ============================================================================
 
 function handleRemoveFromCart() {
-    $id = $_GET['id'] ?? null;
+    $productId = $_GET['id'] ?? $_POST['id'] ?? '';
 
-    if ($id && isset($_SESSION['cart'][$id])) {
-        unset($_SESSION['cart'][$id]);
+    if (!$productId) {
+        echo json_encode(['success' => false, 'message' => 'Product ID required']);
+        exit;
     }
 
-    header("Location: ../cart.php");
-    exit;
+    if (!isset($_SESSION['cart'])) {
+        echo json_encode(['success' => false, 'message' => 'Cart is empty']);
+        exit;
+    }
+
+    // Remove item by ID
+    if (isset($_SESSION['cart'][$productId])) {
+        unset($_SESSION['cart'][$productId]);
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Removed from cart successfully',
+            'cartCount' => count($_SESSION['cart'])
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Product not found in cart']);
+    }
+}
+
+// ============================================================================
+// Update Cart Function
+// ============================================================================
+
+function handleUpdateCart() {
+    if (!isset($_POST['quantities']) || !is_array($_POST['quantities'])) {
+        echo json_encode(['success' => false, 'message' => 'Invalid quantities data']);
+        exit;
+    }
+
+    if (!isset($_SESSION['cart'])) {
+        echo json_encode(['success' => false, 'message' => 'Cart is empty']);
+        exit;
+    }
+
+    $updated = false;
+    $total = 0;
+
+    // Update quantities for each product
+    foreach ($_POST['quantities'] as $productId => $quantity) {
+        $quantity = (int)$quantity;
+        
+        if (isset($_SESSION['cart'][$productId])) {
+            if ($quantity <= 0) {
+                // Remove item if quantity is 0 or negative
+                unset($_SESSION['cart'][$productId]);
+            } else {
+                // Update quantity
+                $_SESSION['cart'][$productId]['quantity'] = $quantity;
+            }
+            $updated = true;
+        }
+    }
+
+    // Calculate new total
+    foreach ($_SESSION['cart'] as $item) {
+        $total += $item['price'] * $item['quantity'];
+    }
+
+    if ($updated) {
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Cart updated successfully',
+            'newTotal' => number_format($total, 2),
+            'cartCount' => count($_SESSION['cart'])
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'No changes made']);
+    }
 }
 ?> 
