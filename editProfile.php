@@ -92,6 +92,16 @@ $profileFile = !empty($user['profilePicture']) && file_exists("uploads/" . $user
         <label class="form-label">City</label>
         <input type="text" name="city" class="form-control" value="<?= htmlspecialchars($user['city'] ?? '') ?>">
       </div>
+
+      <div class="mt-3">
+        <label class="form-label">Address</label>
+        <textarea name="address" class="form-control" rows="3" placeholder="Enter your full address"><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
+      </div>
+
+      <div class="mt-3">
+        <label class="form-label">Zip Code</label>
+        <input type="text" name="zipCode" class="form-control" value="<?= htmlspecialchars($user['zipCode'] ?? '') ?>" placeholder="Enter your zip/postal code">
+      </div>
     </div>
 
     <!-- Profile Picture Upload -->

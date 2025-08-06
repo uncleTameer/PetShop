@@ -27,13 +27,17 @@ $fullName  = $firstName . ' ' . $lastName;
 $phone     = trim($_POST['phone'] ?? '');
 $country   = trim($_POST['country'] ?? '');
 $city      = trim($_POST['city'] ?? '');
+$address   = trim($_POST['address'] ?? '');
+$zipCode   = trim($_POST['zipCode'] ?? '');
 
 // Prepare update array
 $updateData = [
     'fullName' => $fullName,
     'phone'    => $phone,
     'country'  => $country,
-    'city'     => $city
+    'city'     => $city,
+    'address'  => $address,
+    'zipCode'  => $zipCode
 ];
 
 // ✅ Handle profile picture upload

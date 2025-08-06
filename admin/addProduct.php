@@ -15,7 +15,7 @@ $message = '';
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
     $name = trim($_POST['name']);
     $price = floatval($_POST['price']);
-    $category = trim($_POST['category']);
+    $categoryId = $_POST['categoryId'];
     $stock = intval($_POST['stock']);
 
     // Validate image
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
             $db->products->insertOne([
                 'name' => $name,
                 'price' => $price,
-                'category' => $category,
+                'categoryId' => new MongoDB\BSON\ObjectId($categoryId),
                 'stock' => $stock,
                 'image' => 'uploads/' . $filename // relative path
             ]);
@@ -89,7 +89,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
 
   <div class="mb-3">
     <label>Category</label>
-    <input type="text" name="category" class="form-control" required>
+    <select name="categoryId" class="form-control" required>
+      <option value="">Select a category...</option>
+             <?php 
+       $categories = $db->categories->find([], ['sort' => ['name' => 1]]);
+       foreach ($categories as $category): 
+       ?>
+        <option value="<?= $category['_id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+      <?php endforeach; ?>
+    </select>
+    <small class="form-text text-muted">
+      <a href="manageCategories.php" target="_blank">➕ Create new category</a>
+    </small>
   </div>
 
   <div class="mb-3">

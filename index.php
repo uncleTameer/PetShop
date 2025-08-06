@@ -1,22 +1,17 @@
 <?php
 session_start();
-require 'php/dbConnect.php';
+require __DIR__ . '/php/dbConnect.php';
 
 use MongoDB\BSON\ObjectId;
 
-// Check login
+// Check login - Allow browsing for everyone
+$recentOrders = [];
 if (isset($_SESSION['user']['id'])) {
     $userId = new ObjectId($_SESSION['user']['id']);
     $recentOrders = $db->orders->find(
         ['userId' => $userId],
         ['sort' => ['createdAt' => -1], 'limit' => 3]
     )->toArray();
-} else {
-    echo "<script>
-         alert('Session expired. Please login again.');
-         window.location.href = 'php/login.php'; 
-    </script>";
-    exit;
 }
 
 // Fun Facts
@@ -94,7 +89,7 @@ $recommendation = "🎯 Check out our latest horse saddles!";
 
   <!-- Welcome Animation -->
   <div class="alert alert-primary animate__animated animate__fadeInDown flash-message">
-    👋 Welcome back, <?= htmlspecialchars($_SESSION['user']['name']) ?>!
+    👋 <?= isset($_SESSION['user']) ? 'Welcome back, ' . htmlspecialchars($_SESSION['user']['name']) . '!' : 'Welcome to Horse & Camel Shop!' ?>
   </div>
 
   <h1 class="display-4 mb-3">Horse & Camel Shop</h1>

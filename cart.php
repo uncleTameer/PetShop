@@ -47,8 +47,6 @@ $total = 0;
   <?php if (empty($cart)): ?>
     <div class="alert alert-info text-center">Your cart is empty.</div>
   <?php else: ?>
-    <form id="updateCartForm">
-      <input type="hidden" name="action" value="update">
       <table class="table table-bordered text-center align-middle">
         <thead class="table-dark">
           <tr>
@@ -72,7 +70,10 @@ $total = 0;
               </td>
               <td>₪<?= number_format($subtotal, 2) ?></td>
               <td>
-                <button class="btn btn-sm btn-danger remove-item" data-product-id="<?= $id ?>">❌ Remove</button>
+                <form method="POST" action="php/removeFromCart.php" style="display: inline;">
+                  <input type="hidden" name="productId" value="<?= $id ?>">
+                  <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove this item?')">❌ Remove</button>
+                </form>
               </td>
             </tr>
           <?php endforeach; ?>
@@ -85,15 +86,25 @@ $total = 0;
           </tr>
         </tfoot>
       </table>
-      <div class="text-end mb-4">
-        <button type="submit" class="btn btn-warning">🔄 Update Cart</button>
-      </div>
-    </form>
+      
+      <!-- Update Cart Form -->
+      <form method="POST" action="php/updateCart.php">
+        <?php foreach ($cart as $id => $item): ?>
+          <input type="hidden" name="quantities[<?= $id ?>]" value="<?= $item['quantity'] ?>" id="qty_<?= $id ?>">
+        <?php endforeach; ?>
+        <div class="text-end mb-4">
+          <button type="submit" class="btn btn-warning">🔄 Update Cart</button>
+        </div>
+      </form>
 
 
     <?php if (!isset($_SESSION['user'])): ?>
-  <div class="alert alert-warning text-center mt-4">
-    ⚠️ You must <a href="php/login.php">log in</a> to place your order.
+  <div class="alert alert-info text-center mt-4">
+    <h5>🛒 Guest Checkout</h5>
+    <p>You can place your order as a guest, or <a href="php/login.php" class="alert-link">log in</a> to save your information for faster checkout.</p>
+    <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+      💳 Proceed to Checkout - ₪<?= number_format($total, 2) ?>
+    </button>
   </div>
 <?php else: ?>
   <h4>🧾 Checkout</h4>
@@ -144,11 +155,40 @@ $total = 0;
             
             <h6 class="mb-3">Payment Information</h6>
             <form id="checkoutForm" method="POST" action="php/submitOrder.php">
+              <?php if (!isset($_SESSION['user'])): ?>
+              <!-- Guest Information -->
+              <h6 class="mb-3">Customer Information</h6>
+              <div class="row g-3 mb-4">
+                <div class="col-12">
+                  <label for="guestName" class="form-label">Full Name</label>
+                  <input type="text" class="form-control" id="guestName" name="guestName" required 
+                         placeholder="Your full name">
+                </div>
+                <div class="col-12">
+                  <label for="guestEmail" class="form-label">Email Address</label>
+                  <input type="email" class="form-control" id="guestEmail" name="guestEmail" required 
+                         placeholder="your@email.com">
+                </div>
+                <div class="col-12">
+                  <label for="guestAddress" class="form-label">Shipping Address</label>
+                  <textarea class="form-control" id="guestAddress" name="guestAddress" rows="2" 
+                            placeholder="Your shipping address" required></textarea>
+                </div>
+                <div class="col-12">
+                  <label for="guestZipCode" class="form-label">ZIP/Postal Code</label>
+                  <input type="text" class="form-control" id="guestZipCode" name="guestZipCode" required 
+                         placeholder="ZIP or postal code">
+                </div>
+              </div>
+              <hr>
+              <?php endif; ?>
+              
+              <h6 class="mb-3">Payment Information</h6>
               <div class="row g-3">
                 <div class="col-12">
                   <label for="cardName" class="form-label">Cardholder Name</label>
                   <input type="text" class="form-control" id="cardName" name="cardName" required 
-                         placeholder="Name on card" value="<?= htmlspecialchars($_SESSION['user']['name']) ?>">
+                         placeholder="Name on card" value="<?= isset($_SESSION['user']) ? htmlspecialchars($_SESSION['user']['name']) : '' ?>">
                 </div>
                 
                 <div class="col-12">
@@ -212,19 +252,6 @@ $total = 0;
   </div>
 </div>
 
-<!-- Toast Notification -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header">
-      <strong class="me-auto">🛒 Cart Update</strong>
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-    <div class="toast-body" id="toastMessage">
-      <!-- Message will be inserted here -->
-    </div>
-  </div>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Credit card form formatting and validation
@@ -278,170 +305,15 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 2000);
     });
   }
-
-  // Handle cart update form
-  const updateCartForm = document.getElementById('updateCartForm');
-  if (updateCartForm) {
-    updateCartForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      const button = this.querySelector('button[type="submit"]');
-      const originalText = button.innerHTML;
-      
-      // Show loading state
-      button.innerHTML = '⏳ Updating...';
-      button.disabled = true;
-      
-      fetch('php/cartOperations.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        // Show toast message
-        const toast = document.getElementById('cartToast');
-        const toastMessage = document.getElementById('toastMessage');
-        
-        if (data.success) {
-          // Update cart count in navbar
-          const cartButton = document.querySelector('a[href="cart.php"]');
-          if (cartButton) {
-            cartButton.innerHTML = `🛒 Cart (${data.cartCount})`;
-          }
-          
-          // Update total in footer
-          const totalCell = document.querySelector('tfoot th:nth-child(4)');
-          if (totalCell) {
-            totalCell.textContent = `₪${data.newTotal}`;
-          }
-          
-          toastMessage.innerHTML = `
-            <div class="text-success">
-              <strong>✅ ${data.message}</strong><br>
-              <small>New total: ₪${data.newTotal}</small>
-            </div>
-          `;
-        } else {
-          toastMessage.innerHTML = `
-            <div class="text-danger">
-              <strong>❌ ${data.message}</strong>
-            </div>
-          `;
-        }
-        
-        // Show the toast
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        const toast = document.getElementById('cartToast');
-        const toastMessage = document.getElementById('toastMessage');
-        toastMessage.innerHTML = `
-          <div class="text-danger">
-            <strong>❌ An error occurred. Please try again.</strong>
-          </div>
-        `;
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-      })
-      .finally(() => {
-        // Restore button state
-        button.innerHTML = originalText;
-        button.disabled = false;
-      });
-    });
-  }
-
-  // Handle remove item buttons
-  document.querySelectorAll('.remove-item').forEach(button => {
-    button.addEventListener('click', function() {
-      const productId = this.getAttribute('data-product-id');
-      const row = this.closest('tr');
-      const originalText = this.innerHTML;
-      
-      // Show loading state
-      this.innerHTML = '⏳ Removing...';
-      this.disabled = true;
-      
-      fetch(`php/cartOperations.php?action=remove&id=${productId}`, {
-        method: 'GET'
-      })
-      .then(response => response.json())
-      .then(data => {
-        // Show toast message
-        const toast = document.getElementById('cartToast');
-        const toastMessage = document.getElementById('toastMessage');
-        
-        if (data.success) {
-          // Remove the row from the table
-          row.remove();
-          
-          // Update cart count in navbar
-          const cartButton = document.querySelector('a[href="cart.php"]');
-          if (cartButton) {
-            cartButton.innerHTML = `🛒 Cart (${data.cartCount})`;
-          }
-          
-          // Check if cart is empty
-          const tbody = document.querySelector('tbody');
-          if (tbody.children.length === 0) {
-            location.reload(); // Reload to show empty cart message
-            return;
-          }
-          
-          // Recalculate total
-          let total = 0;
-          document.querySelectorAll('tbody tr').forEach(row => {
-            const subtotalText = row.querySelector('td:nth-child(4)').textContent;
-            const subtotal = parseFloat(subtotalText.replace('₪', '').replace(',', ''));
-            total += subtotal;
-          });
-          
-          // Update total in footer
-          const totalCell = document.querySelector('tfoot th:nth-child(4)');
-          if (totalCell) {
-            totalCell.textContent = `₪${total.toFixed(2)}`;
-          }
-          
-          toastMessage.innerHTML = `
-            <div class="text-success">
-              <strong>✅ ${data.message}</strong><br>
-              <small>Items in cart: ${data.cartCount}</small>
-            </div>
-          `;
-        } else {
-          toastMessage.innerHTML = `
-            <div class="text-danger">
-              <strong>❌ ${data.message}</strong>
-            </div>
-          `;
-        }
-        
-        // Show the toast
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        const toast = document.getElementById('cartToast');
-        const toastMessage = document.getElementById('toastMessage');
-        toastMessage.innerHTML = `
-          <div class="text-danger">
-            <strong>❌ An error occurred. Please try again.</strong>
-          </div>
-        `;
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-      })
-      .finally(() => {
-        // Restore button state if not removed
-        if (this.parentNode) {
-          this.innerHTML = originalText;
-          this.disabled = false;
-        }
-      });
+  
+  // Sync quantity inputs with hidden form inputs
+  document.querySelectorAll('input[name^="quantities["]').forEach(input => {
+    input.addEventListener('change', function() {
+      const productId = this.name.match(/\[(.*?)\]/)[1];
+      const hiddenInput = document.getElementById('qty_' + productId);
+      if (hiddenInput) {
+        hiddenInput.value = this.value;
+      }
     });
   });
 });

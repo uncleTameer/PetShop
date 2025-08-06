@@ -55,16 +55,20 @@ $delivered = filterOrdersByStatus($orders, 'Delivered');
         </thead>
         <tbody>
         <?php foreach ($pending as $order): 
-          $user = $db->users->findOne(['_id' => $order['userId']]);
-          $name = $user['fullName'] ?? 'Unknown';
           $shortId = substr((string)$order['_id'], -5);
+          if (isset($order['userId'])) {
+              $user = $db->users->findOne(['_id' => $order['userId']]);
+              $name = $user['fullName'] ?? 'Unknown';
+          } else {
+              $name = $order['guestInfo']['name'] ?? 'Guest User';
+          }
         ?>
           <tr>
             <td><?= $shortId ?></td>
             <td><?= htmlspecialchars($name) ?></td>
             <td><?= htmlspecialchars($order['status']) ?></td>
             <td>
-              <button class="btn btn-sm btn-outline-info" onclick="loadOrderDetails('<?= $order['_id'] ?>')">🔍 View</button>
+              <a href="orderDetails.php?id=<?= $order['_id'] ?>" class="btn btn-sm btn-outline-info">🔍 View</a>
             </td>
           </tr>
         <?php endforeach; ?>
@@ -81,16 +85,20 @@ $delivered = filterOrdersByStatus($orders, 'Delivered');
         </thead>
         <tbody>
         <?php foreach ($shipped as $order): 
-          $user = $db->users->findOne(['_id' => $order['userId']]);
-          $name = $user['fullName'] ?? 'Unknown';
           $shortId = substr((string)$order['_id'], -5);
+          if (isset($order['userId'])) {
+              $user = $db->users->findOne(['_id' => $order['userId']]);
+              $name = $user['fullName'] ?? 'Unknown';
+          } else {
+              $name = $order['guestInfo']['name'] ?? 'Guest User';
+          }
         ?>
           <tr>
             <td><?= $shortId ?></td>
             <td><?= htmlspecialchars($name) ?></td>
             <td><?= htmlspecialchars($order['status']) ?></td>
             <td>
-              <button class="btn btn-sm btn-outline-info" onclick="loadOrderDetails('<?= $order['_id'] ?>')">🔍 View</button>
+              <a href="orderDetails.php?id=<?= $order['_id'] ?>" class="btn btn-sm btn-outline-info">🔍 View</a>
               <form method="POST" action="updateOrderStatus.php" style="display:inline-block;">
                 <input type="hidden" name="orderId" value="<?= $order['_id'] ?>">
                 <input type="hidden" name="status" value="Delivered">
@@ -111,16 +119,20 @@ $delivered = filterOrdersByStatus($orders, 'Delivered');
         </thead>
         <tbody>
         <?php foreach ($delivered as $order): 
-          $user = $db->users->findOne(['_id' => $order['userId']]);
-          $name = $user['fullName'] ?? 'Unknown';
           $shortId = substr((string)$order['_id'], -5);
+          if (isset($order['userId'])) {
+              $user = $db->users->findOne(['_id' => $order['userId']]);
+              $name = $user['fullName'] ?? 'Unknown';
+          } else {
+              $name = $order['guestInfo']['name'] ?? 'Guest User';
+          }
         ?>
           <tr>
             <td><?= $shortId ?></td>
             <td><?= htmlspecialchars($name) ?></td>
             <td><?= htmlspecialchars($order['status']) ?></td>
             <td>
-              <button class="btn btn-sm btn-outline-info" onclick="loadOrderDetails('<?= $order['_id'] ?>')">🔍 View</button>
+              <a href="orderDetails.php?id=<?= $order['_id'] ?>" class="btn btn-sm btn-outline-info">🔍 View</a>
             </td>
           </tr>
         <?php endforeach; ?>
@@ -137,34 +149,25 @@ $delivered = filterOrdersByStatus($orders, 'Delivered');
     </thead>
     <tbody>
     <?php foreach ($cancelled as $order): 
-      $user = $db->users->findOne(['_id' => $order['userId']]);
-      $name = $user['fullName'] ?? 'Unknown';
       $shortId = substr((string)$order['_id'], -5);
+      if (isset($order['userId'])) {
+          $user = $db->users->findOne(['_id' => $order['userId']]);
+          $name = $user['fullName'] ?? 'Unknown';
+      } else {
+          $name = $order['guestInfo']['name'] ?? 'Guest User';
+      }
     ?>
       <tr>
         <td><?= $shortId ?></td>
         <td><?= htmlspecialchars($name) ?></td>
         <td><?= htmlspecialchars($order['status']) ?></td>
         <td>
-          <button class="btn btn-sm btn-outline-info" onclick="loadOrderDetails('<?= $order['_id'] ?>')">🔍 View</button>
+                        <a href="orderDetails.php?id=<?= $order['_id'] ?>" class="btn btn-sm btn-outline-info">🔍 View</a>
         </td>
       </tr>
     <?php endforeach; ?>
     </tbody>
   </table>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">📦 Order Details</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="orderDetailsContent">Loading...</div>
-    </div>
-  </div>
 </div>
 
 <!-- Scripts -->
@@ -181,19 +184,6 @@ $(function () {
     setTimeout(() => $(this).fadeOut(500), 3000);
   });
 });
-
-function loadOrderDetails(orderId) {
-  const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
-  $('#orderDetailsContent').html("Loading...");
-  fetch(`fetchOrderDetails.php?id=${orderId}`)
-    .then(res => res.text())
-    .then(html => {
-      $('#orderDetailsContent').html(html);
-      modal.show();
-    }).catch(() => {
-      $('#orderDetailsContent').html("<div class='text-danger'>Failed to load order details.</div>");
-    });
-}
 </script>
 </body>
 </html>

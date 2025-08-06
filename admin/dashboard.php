@@ -159,7 +159,7 @@ $leastOrdered = array_slice(array_reverse($productStats), 0, 5);
   </div>
 
   <div class="text-center mt-5">
-    <div class="d-flex justify-content-center gap-3">
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
       <a href="orderReport.php" class="btn btn-outline-primary btn-lg">📊 View Full Order Report</a>
       <a href="notifications.php" class="btn btn-outline-warning btn-lg">
         🔔 System Notifications
@@ -167,6 +167,8 @@ $leastOrdered = array_slice(array_reverse($productStats), 0, 5);
           <span class="badge bg-danger ms-2"><?= $unreadNotifications ?></span>
         <?php endif; ?>
       </a>
+      <a href="manageCategories.php" class="btn btn-outline-success btn-lg">📂 Manage Categories</a>
+      <a href="createAccount.php" class="btn btn-outline-info btn-lg">👤 Create Account</a>
     </div>
   </div>
 

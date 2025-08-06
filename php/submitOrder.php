@@ -6,15 +6,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-if (!isset($_SESSION['user'])) {
-    $_SESSION['error_message'] = "You must be logged in to place an order.";
-    header("Location: ../php/login.php");
-    exit;
-}
+// Handle guest orders (no user login required)
+$isGuest = !isset($_SESSION['user']);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
-        $_SESSION['error_message'] = "❌ Your cart is empty.";
+        $_SESSION['error_message'] = "❌ Your cart is empty.";  
         header("Location: ../cart.php");
         exit;
     }
@@ -28,12 +25,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     $order = [
-        'userId' => new MongoDB\BSON\ObjectId($_SESSION['user']['id']),
         'items' => $cart,
         'total' => $total,
         'createdAt' => new MongoDB\BSON\UTCDateTime(),
         'status' => 'Pending'
     ];
+    
+    // Add user info based on whether it's a guest or logged-in user
+    if ($isGuest) {
+        $order['guestInfo'] = [
+            'name' => $_POST['guestName'] ?? 'Guest User',
+            'email' => $_POST['guestEmail'] ?? '',
+            'address' => $_POST['guestAddress'] ?? '',
+            'zipCode' => $_POST['guestZipCode'] ?? ''
+        ];
+    } else {
+        $order['userId'] = new MongoDB\BSON\ObjectId($_SESSION['user']['id']);
+    }
 
     $result = $db->orders->insertOne($order);
     $orderId = (string)$result->getInsertedId();
@@ -47,7 +55,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     // Send order confirmation email
-    $orderDetailsHtml = "<h3>Thank you for your order, " . htmlspecialchars($_SESSION['user']['name']) . "!</h3>"
+    $customerName = $isGuest ? ($_POST['guestName'] ?? 'Guest User') : $_SESSION['user']['name'];
+    $customerEmail = $isGuest ? ($_POST['guestEmail'] ?? '') : $_SESSION['user']['email'];
+    
+    $orderDetailsHtml = "<h3>Thank you for your order, " . htmlspecialchars($customerName) . "!</h3>"
         . "<p><strong>Order ID:</strong> " . substr($orderId, -5) . "<br>"
         . "<strong>Total:</strong> ₪" . number_format($total, 2) . "</p>"
         . "<h4>Items:</h4><ul>";
@@ -56,17 +67,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     $orderDetailsHtml .= "</ul>";
     
-    $orderDetailsText = "Thank you for your order, " . $_SESSION['user']['name'] . "!\nOrder ID: " . substr($orderId, -5) . "\nTotal: ₪" . number_format($total, 2) . "\nItems:\n";
+    $orderDetailsText = "Thank you for your order, " . $customerName . "!\nOrder ID: " . substr($orderId, -5) . "\nTotal: ₪" . number_format($total, 2) . "\nItems:\n";
     foreach ($cart as $item) {
         $orderDetailsText .= $item['name'] . " × " . $item['quantity'] . " (₪" . number_format($item['price'] * $item['quantity'], 2) . ")\n";
     }
     
-    $emailSent = sendOrderConfirmationMail(
-        $_SESSION['user']['email'],
-        $_SESSION['user']['name'],
-        $orderDetailsHtml,
-        $orderDetailsText
-    );
+    $emailSent = false;
+    if (!empty($customerEmail)) {
+        $emailSent = sendOrderConfirmationMail(
+            $customerEmail,
+            $customerName,
+            $orderDetailsHtml,
+            $orderDetailsText
+        );
+    }
 
     unset($_SESSION['cart']);
     $_SESSION['last_order_id'] = $result->getInsertedId();

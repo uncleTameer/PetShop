@@ -54,12 +54,12 @@ sendOrderConfirmationMail($toEmail, $userName, $orderDetailsHtml, $orderDetailsT
 <body>
 
 <nav class="navbar navbar-dark bg-dark px-4 mb-4">
-  <a class="navbar-brand" href="index.php">🏠 Pet Shop</a>
+          <a class="navbar-brand" href="../index.php">🏠 Pet Shop</a>
   <div class="ms-auto text-white">
     <?= $userName ?>
-    <a href="myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a>
-    <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
-    <a href="cart.php" class="btn btn-warning btn-sm ms-3">🛒 Cart</a>
+            <a href="../myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a>
+        <a href="logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
+        <a href="../cart.php" class="btn btn-warning btn-sm ms-3">🛒 Cart</a>
   </div>
 </nav>
 

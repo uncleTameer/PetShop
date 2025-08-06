@@ -148,16 +148,30 @@ $averageRating = $reviewCount > 0 ? round($totalRating / $reviewCount, 1) : 0;
             </div>
             
             <h3 class="text-success mb-3">₪<?= number_format($product['price'], 2) ?></h3>
-            <p class="text-muted mb-3">Category: <?= htmlspecialchars($product['category']) ?></p>
+            <?php 
+            // Get category name for this product
+            $category = null;
+            if (isset($product['categoryId'])) {
+                $category = $db->categories->findOne(['_id' => $product['categoryId']]);
+            }
+            ?>
+            <p class="text-muted mb-3">
+                Category: 
+                <?php if ($category): ?>
+                    <span class="badge bg-info"><?= htmlspecialchars($category['name']) ?></span>
+                <?php else: ?>
+                    <span class="text-muted">No category assigned</span>
+                <?php endif; ?>
+            </p>
             <p class="mb-3">Stock: <?= $product['stock'] ?> available</p>
             
             <div class="d-flex gap-2 mb-3">
                 <?php if ($product['stock'] > 0): ?>
-                                         <form class="flex-fill cart-form">
-                         <input type="hidden" name="action" value="add">
-                         <input type="hidden" name="name" value="<?= $product['name'] ?>">
-                         <button type="submit" class="btn btn-primary btn-lg w-100">🛒 Add to Cart</button>
-                     </form>
+                    <form method="POST" action="php/addToCart.php" class="flex-fill">
+                        <input type="hidden" name="name" value="<?= $product['name'] ?>">
+                                                                 <input type="hidden" name="redirect" value="../product.php?id=<?= $product['_id'] ?>">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">🛒 Add to Cart</button>
+                    </form>
                 <?php else: ?>
                     <button class="btn btn-secondary btn-lg w-100" disabled>❌ Out of Stock</button>
                 <?php endif; ?>
@@ -250,74 +264,7 @@ $averageRating = $reviewCount > 0 ? round($totalRating / $reviewCount, 1) : 0;
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Handle cart form submissions
-  document.querySelectorAll('.cart-form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      const button = this.querySelector('button[type="submit"]');
-      const originalText = button.innerHTML;
-      
-      // Show loading state
-      button.innerHTML = '⏳ Adding...';
-      button.disabled = true;
-      
-      fetch('php/cartOperations.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        // Show toast message
-        const toast = document.getElementById('cartToast');
-        const toastMessage = document.getElementById('toastMessage');
-        
-        if (data.success) {
-          toastMessage.innerHTML = `
-            <div class="text-success">
-              <strong>✅ ${data.message}</strong><br>
-              <small>Items in cart: ${data.cartCount}</small>
-            </div>
-          `;
-          // Update cart count in navbar if it exists
-          const cartButton = document.querySelector('a[href="cart.php"]');
-          if (cartButton) {
-            cartButton.innerHTML = `🛒 Cart (${data.cartCount})`;
-          }
-        } else {
-          toastMessage.innerHTML = `
-            <div class="text-danger">
-              <strong>❌ ${data.message}</strong>
-            </div>
-          `;
-        }
-        
-        // Show the toast
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        toastMessage.innerHTML = `
-          <div class="text-danger">
-            <strong>❌ An error occurred. Please try again.</strong>
-          </div>
-        `;
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-      })
-      .finally(() => {
-        // Restore button state
-        button.innerHTML = originalText;
-        button.disabled = false;
-      });
-    });
-  });
-});
-</script>
+
 
 <style>
 .rating-input {

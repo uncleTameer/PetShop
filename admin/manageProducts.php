@@ -108,7 +108,16 @@ $products = $db->products->find($filter);
         <tr class="<?= $product['stock'] < 5 ? 'table-warning' : '' ?>">
           <td><?= htmlspecialchars($product['name']) ?></td>
           <td><?= number_format($product['price'], 2) ?></td>
-          <td><?= htmlspecialchars($product['category']) ?></td>
+          <td>
+            <?php 
+            if (isset($product['categoryId'])) {
+                $category = $db->categories->findOne(['_id' => $product['categoryId']]);
+                echo htmlspecialchars($category['name'] ?? 'Unknown Category');
+            } else {
+                echo htmlspecialchars($product['category'] ?? 'No Category');
+            }
+            ?>
+          </td>
           <td><?= $product['stock'] ?></td>
           <td>
             <img src="../<?= $product['image'] ?>" alt="Image" style="height: 60px;">

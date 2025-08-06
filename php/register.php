@@ -14,6 +14,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email'] ?? '');
     $confirmEmail = trim($_POST['confirmEmail'] ?? '');
     $password = $_POST['password'] ?? '';
+    $address = trim($_POST['address'] ?? '');
+    $zipCode = trim($_POST['zipCode'] ?? '');
 
     if (!isset($_POST['terms'])) {
         $message = "❌ You must accept the Terms and Conditions.";
@@ -43,6 +45,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'email'      => $email,
                 'password'   => $hashedPassword,
                 'role'       => $role,
+                'address'    => $address,
+                'zipCode'    => $zipCode,
                 'createdAt'  => new MongoDB\BSON\UTCDateTime()
             ]);
 
@@ -130,6 +134,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="mt-3">
       <label class="form-label">Confirm Email</label>
       <input type="email" name="confirmEmail" class="form-control" placeholder="Re-type your email" required>
+    </div>
+
+    <div class="mt-3">
+      <label class="form-label">Address</label>
+      <input type="text" name="address" class="form-control" placeholder="Your full address" required>
+    </div>
+
+    <div class="mt-3">
+      <label class="form-label">ZIP/Postal Code</label>
+      <input type="text" name="zipCode" class="form-control" placeholder="ZIP or postal code" required>
     </div>
 
     <div class="mt-3">

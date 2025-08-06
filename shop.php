@@ -4,13 +4,23 @@ if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
-// Search functionality
+// Search and filter functionality
 $search = $_GET['search'] ?? '';
+$categoryFilter = $_GET['category'] ?? '';
+
+// Build query
+$query = [];
 if (!empty($search)) {
-    $products = $db->products->find(['name' => ['$regex' => $search, '$options' => 'i']]);
-} else {
-    $products = $db->products->find();
+    $query['name'] = ['$regex' => $search, '$options' => 'i'];
 }
+if (!empty($categoryFilter)) {
+    $query['categoryId'] = new MongoDB\BSON\ObjectId($categoryFilter);
+}
+
+$products = $db->products->find($query);
+
+// Get all categories for filter dropdown
+$categories = $db->categories->find([], ['sort' => ['name' => 1]]);
 ?>
 
 <script>
@@ -79,15 +89,35 @@ if (!empty($search)) {
   <div class="container py-4">
     <h2 class="text-center mb-4">All Products</h2>
     
-    <!-- Search Bar -->
+    <!-- Search and Filter Bar -->
     <div class="row justify-content-center mb-4">
-      <div class="col-md-6">
-        <form method="GET" action="shop.php" class="d-flex">
-          <input type="text" name="search" class="form-control me-2" 
-                 placeholder="Search products by name..." 
-                 value="<?= htmlspecialchars($search) ?>">
-          <button type="submit" class="btn btn-primary">🔍 Search</button>
+      <div class="col-md-8">
+        <form method="GET" action="shop.php" class="row g-3">
+          <div class="col-md-5">
+            <input type="text" name="search" class="form-control" 
+                   placeholder="Search products by name..." 
+                   value="<?= htmlspecialchars($search) ?>">
+          </div>
+          <div class="col-md-4">
+            <select name="category" class="form-control">
+              <option value="">All Categories</option>
+              <?php foreach ($categories as $category): ?>
+                <option value="<?= $category['_id'] ?>" 
+                        <?= $categoryFilter == $category['_id'] ? 'selected' : '' ?>>
+                  <?= htmlspecialchars($category['name']) ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">🔍 Search</button>
+          </div>
         </form>
+        <?php if (!empty($search) || !empty($categoryFilter)): ?>
+          <div class="text-center mt-2">
+            <a href="shop.php" class="btn btn-outline-secondary btn-sm">Clear Filters</a>
+          </div>
+        <?php endif; ?>
       </div>
     </div>
     
@@ -105,16 +135,26 @@ if (!empty($search)) {
                   <?= $product['name'] ?>
                 </a>
               </h5>
+              <?php 
+              // Get category name for this product
+              $category = null;
+              if (isset($product['categoryId'])) {
+                  $category = $db->categories->findOne(['_id' => $product['categoryId']]);
+              }
+              ?>
+              <?php if ($category): ?>
+                <span class="badge bg-info mb-2"><?= htmlspecialchars($category['name']) ?></span>
+              <?php endif; ?>
               <p class="card-text">₪<?= number_format($product['price'], 2) ?></p>
               <p class="card-text"><small class="text-muted">Stock: <?= $product['stock'] ?></small></p>
               <div class="d-flex gap-2">
                 <a href="product.php?id=<?= $product['_id'] ?>" class="btn btn-outline-primary flex-fill">👁️ View Details</a>
                 <?php if ($product['stock'] > 0): ?>
-                                     <form class="flex-fill cart-form">
-                     <input type="hidden" name="action" value="add">
-                     <input type="hidden" name="name" value="<?= $product['name'] ?>">
-                     <button type="submit" class="btn btn-primary w-100">🛒 Add to Cart</button>
-                   </form>
+                  <form method="POST" action="php/addToCart.php" class="flex-fill">
+                    <input type="hidden" name="name" value="<?= $product['name'] ?>">
+                                                             <input type="hidden" name="redirect" value="../shop.php">
+                    <button type="submit" class="btn btn-primary w-100">🛒 Add to Cart</button>
+                  </form>
                 <?php else: ?>
                   <button class="btn btn-secondary w-100" disabled>❌ Out of Stock</button>
                 <?php endif; ?>
@@ -132,87 +172,6 @@ if (!empty($search)) {
     </div>
   </div>
 
-  <!-- Toast Notification -->
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header">
-        <strong class="me-auto">🛒 Cart Update</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div class="toast-body" id="toastMessage">
-        <!-- Message will be inserted here -->
-      </div>
-    </div>
-  </div>
-
-  <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Handle cart form submissions
-    document.querySelectorAll('.cart-form').forEach(form => {
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const button = this.querySelector('button[type="submit"]');
-        const originalText = button.innerHTML;
-        
-        // Show loading state
-        button.innerHTML = '⏳ Adding...';
-        button.disabled = true;
-        
-        fetch('php/cartOperations.php', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          // Show toast message
-          const toast = document.getElementById('cartToast');
-          const toastMessage = document.getElementById('toastMessage');
-          
-          if (data.success) {
-            toastMessage.innerHTML = `
-              <div class="text-success">
-                <strong>✅ ${data.message}</strong><br>
-                <small>Items in cart: ${data.cartCount}</small>
-              </div>
-            `;
-            // Update cart count in navbar if it exists
-            const cartButton = document.querySelector('a[href="cart.php"]');
-            if (cartButton) {
-              cartButton.innerHTML = `🛒 Cart (${data.cartCount})`;
-            }
-          } else {
-            toastMessage.innerHTML = `
-              <div class="text-danger">
-                <strong>❌ ${data.message}</strong>
-              </div>
-            `;
-          }
-          
-          // Show the toast
-          const bsToast = new bootstrap.Toast(toast);
-          bsToast.show();
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          toastMessage.innerHTML = `
-            <div class="text-danger">
-              <strong>❌ An error occurred. Please try again.</strong>
-            </div>
-          `;
-          const bsToast = new bootstrap.Toast(toast);
-          bsToast.show();
-        })
-        .finally(() => {
-          // Restore button state
-          button.innerHTML = originalText;
-          button.disabled = false;
-        });
-      });
-    });
-  });
-  </script>
   
 </body>
 </html>

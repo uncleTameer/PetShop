@@ -26,13 +26,13 @@ if (!$product) {
 } elseif ($_SERVER["REQUEST_METHOD"] === "POST") {
     $name = trim($_POST['name']);
     $price = floatval($_POST['price']);
-    $category = trim($_POST['category']);
+    $categoryId = $_POST['categoryId'];
     $stock = intval($_POST['stock']);
 
     $updateData = [
         'name' => $name,
         'price' => $price,
-        'category' => $category,
+        'categoryId' => new MongoDB\BSON\ObjectId($categoryId),
         'stock' => $stock,
     ];
 
@@ -114,7 +114,21 @@ if (!$product) {
 
     <div class="mb-3">
       <label>Category</label>
-      <input type="text" name="category" class="form-control" value="<?= htmlspecialchars($product['category']) ?>" required>
+      <select name="categoryId" class="form-control" required>
+        <option value="">Select a category...</option>
+                 <?php 
+         $categories = $db->categories->find([], ['sort' => ['name' => 1]]);
+         foreach ($categories as $category): 
+         ?>
+          <option value="<?= $category['_id'] ?>" 
+                  <?= (isset($product['categoryId']) && $product['categoryId'] == $category['_id']) ? 'selected' : '' ?>>
+            <?= htmlspecialchars($category['name']) ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
+      <small class="form-text text-muted">
+        <a href="manageCategories.php" target="_blank">➕ Create new category</a>
+      </small>
     </div>
 
     <div class="mb-3">
