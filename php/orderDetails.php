@@ -1,5 +1,5 @@
 <?php
-require 'php/dbConnect.php';
+require 'dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
@@ -37,7 +37,7 @@ try {
   <a class="navbar-brand" href="myOrders.php">⬅ Back to My Orders</a>
   <div class="ms-auto text-white">
     <?= htmlspecialchars($_SESSION['user']['name']) ?>
-    <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-3">Logout</a>
+    <a href="logout.php" class="btn btn-outline-light btn-sm ms-3">Logout</a>
   </div>
 </nav>
 

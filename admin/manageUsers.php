@@ -3,7 +3,7 @@ require_once '../php/dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 
 if (!in_array($_SESSION['user']['role'], ['admin'])) {
-  header("Location: ../index.php");
+  header("Location: ../php/index.php");
   exit;
 }
 

@@ -1,5 +1,5 @@
 <?php
-require 'php/dbConnect.php';
+require 'dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -9,7 +9,7 @@ use MongoDB\BSON\ObjectId;
 // Check if user is logged in
 if (!isset($_SESSION['user'])) {
     $_SESSION['error_message'] = "You must be logged in to access your wishlist.";
-    header("Location: php/login.php");
+    header("Location: login.php");
     exit;
 }
 
@@ -103,10 +103,10 @@ $wishlistItems = $db->wishlist->aggregate([
             </div>
             <a href="editProfile.php" class="btn btn-outline-info btn-sm me-2">👤 Edit Profile</a>
             <a href="myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a> 
-            <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
+            <a href="logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
         <?php else: ?>
-            <a href="php/login.php" class="btn btn-outline-light btn-sm me-2">Login</a>
-            <a href="php/register.php" class="btn btn-outline-light btn-sm">Register</a>
+            <a href="login.php" class="btn btn-outline-light btn-sm me-2">Login</a>
+<a href="register.php" class="btn btn-outline-light btn-sm">Register</a>
         <?php endif; ?>
         <a href="cart.php" class="btn btn-warning btn-sm ms-3">🛒 Cart</a>
     </div>
@@ -168,9 +168,9 @@ $wishlistItems = $db->wishlist->aggregate([
                             
                             <div class="d-flex gap-2">
                                 <?php if ($item['product']['stock'] > 0): ?>
-                                                                         <form method="POST" action="php/addToCart.php" class="flex-fill">
+                                                                         <form method="POST" action="addToCart.php" class="flex-fill">
                                          <input type="hidden" name="name" value="<?= $item['product']['name'] ?>">
-                                         <input type="hidden" name="redirect" value="../wishlist.php">
+                                         <input type="hidden" name="redirect" value="wishlist.php">
                                          <button type="submit" class="btn btn-primary w-100">🛒 Add to Cart</button>
                                      </form>
                                 <?php else: ?>

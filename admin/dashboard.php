@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header("Location: ../index.php");
+    header("Location: ../php/index.php");
     exit;
 }
 
@@ -27,8 +27,6 @@ $pipeline = [
 ];
 
 $productStats = $db->orders->aggregate($pipeline)->toArray();
-$mostOrdered = array_slice($productStats, 0, 5);
-$leastOrdered = array_slice(array_reverse($productStats), 0, 5);
 ?>
 
 <!DOCTYPE html>
@@ -116,45 +114,6 @@ $leastOrdered = array_slice(array_reverse($productStats), 0, 5);
           </div>
         </div>
       </a>
-    </div>
-  </div>
-
-  <!-- Most Ordered and Least Ordered Products -->
-  <div class="row g-4">
-    <div class="col-md-6">
-      <div class="card shadow">
-        <div class="card-header bg-success text-white">
-          📈 Most Ordered Products
-        </div>
-        <div class="card-body">
-          <ul class="list-group">
-            <?php foreach ($mostOrdered as $item): ?>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <?= htmlspecialchars($item->_id) ?>
-                <span class="badge bg-success"><?= $item->count ?> times</span>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-6">
-      <div class="card shadow">
-        <div class="card-header bg-danger text-white">
-          📉 Least Ordered Products
-        </div>
-        <div class="card-body">
-          <ul class="list-group">
-            <?php foreach ($leastOrdered as $item): ?>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <?= htmlspecialchars($item->_id) ?>
-                <span class="badge bg-danger"><?= $item->count ?> times</span>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-        </div>
-      </div>
     </div>
   </div>
 

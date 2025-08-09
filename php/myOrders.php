@@ -1,10 +1,10 @@
 <?php
-require_once 'php/dbConnect.php';
+require_once 'dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 if (!isset($_SESSION['user'])) {
-    header("Location: php/login.php");
+    header("Location: login.php");
     exit;
 }
 
@@ -37,7 +37,7 @@ $orders = $db->orders->find(['userId' => $userId], ['sort' => ['createdAt' => -1
         <?php endif; ?>
   <div class="ms-auto text-white">
     <?= htmlspecialchars($_SESSION['user']['name']) ?>
-    <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-3">Logout</a>
+    <a href="logout.php" class="btn btn-outline-light btn-sm ms-3">Logout</a>
   </div>
 </nav>
 
@@ -83,7 +83,7 @@ $orders = $db->orders->find(['userId' => $userId], ['sort' => ['createdAt' => -1
                 </span>
 
                 <?php if ($status === 'Pending'): ?>
-                  <a href="php/cancelOrder.php?id=<?= $order['_id'] ?>" 
+                  <a href="cancelOrder.php?id=<?= $order['_id'] ?>" 
                      class="btn btn-sm btn-outline-danger ms-2"
                      title="Click to cancel this order"
                      onclick="return confirm('Are you sure you want to cancel this order?');">

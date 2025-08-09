@@ -33,10 +33,10 @@ $total = 0;
     <?php if (isset($_SESSION['user'])): ?>
       <?= htmlspecialchars($_SESSION['user']['name']) ?>
       <a href="myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a>
-      <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-3">Logout</a>
+      <a href="logout.php" class="btn btn-outline-light btn-sm ms-3">Logout</a>
     <?php else: ?>
-      <a href="php/login.php" class="btn btn-outline-light btn-sm me-2">Login</a>
-      <a href="php/register.php" class="btn btn-outline-light btn-sm">Register</a>
+      <a href="login.php" class="btn btn-outline-light btn-sm me-2">Login</a>
+<a href="register.php" class="btn btn-outline-light btn-sm">Register</a>
     <?php endif; ?>
   </div>
 </nav>
@@ -70,7 +70,7 @@ $total = 0;
               </td>
               <td>₪<?= number_format($subtotal, 2) ?></td>
               <td>
-                <form method="POST" action="php/removeFromCart.php" style="display: inline;">
+                <form method="POST" action="removeFromCart.php" style="display: inline;">
                   <input type="hidden" name="productId" value="<?= $id ?>">
                   <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove this item?')">❌ Remove</button>
                 </form>
@@ -88,7 +88,7 @@ $total = 0;
       </table>
       
       <!-- Update Cart Form -->
-      <form method="POST" action="php/updateCart.php">
+      <form method="POST" action="updateCart.php">
         <?php foreach ($cart as $id => $item): ?>
           <input type="hidden" name="quantities[<?= $id ?>]" value="<?= $item['quantity'] ?>" id="qty_<?= $id ?>">
         <?php endforeach; ?>
@@ -101,7 +101,7 @@ $total = 0;
     <?php if (!isset($_SESSION['user'])): ?>
   <div class="alert alert-info text-center mt-4">
     <h5>🛒 Guest Checkout</h5>
-    <p>You can place your order as a guest, or <a href="php/login.php" class="alert-link">log in</a> to save your information for faster checkout.</p>
+    <p>You can place your order as a guest, or <a href="login.php" class="alert-link">log in</a> to save your information for faster checkout.</p>
     <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#checkoutModal">
       💳 Proceed to Checkout - ₪<?= number_format($total, 2) ?>
     </button>
@@ -154,7 +154,7 @@ $total = 0;
             <hr>
             
             <h6 class="mb-3">Payment Information</h6>
-            <form id="checkoutForm" method="POST" action="php/submitOrder.php">
+            <form id="checkoutForm" method="POST" action="submitOrder.php">
               <?php if (!isset($_SESSION['user'])): ?>
               <!-- Guest Information -->
               <h6 class="mb-3">Customer Information</h6>

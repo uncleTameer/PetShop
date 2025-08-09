@@ -11,6 +11,7 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     exit;
 }
 
+// Get order statistics for most ordered products
 $pipeline = [
     ['$unwind' => '$items'],
     ['$group' => ['_id' => '$items.name', 'count' => ['$sum' => '$items.quantity']]],
@@ -21,6 +22,43 @@ $allProducts = $db->products->find()->toArray();
 
 $orderedNames = array_map(fn($item) => $item->_id, $orderStats);
 $neverOrderedProducts = array_filter($allProducts, fn($product) => !in_array($product['name'], $orderedNames));
+
+// Get weekly profit data for current month
+$currentMonth = date('Y-m');
+$weeklyProfitPipeline = [
+    ['$match' => [
+        'createdAt' => [
+            '$gte' => new MongoDB\BSON\UTCDateTime(strtotime($currentMonth . '-01') * 1000),
+            '$lt' => new MongoDB\BSON\UTCDateTime(strtotime($currentMonth . '-01 +1 month') * 1000)
+        ]
+    ]],
+    ['$addFields' => [
+        'week' => ['$week' => '$createdAt'],
+        'totalWithVAT' => ['$multiply' => ['$total', 1.17]] // Adding 17% VAT
+    ]],
+    ['$group' => [
+        '_id' => '$week',
+        'weeklyProfit' => ['$sum' => '$totalWithVAT'],
+        'orderCount' => ['$sum' => 1]
+    ]],
+    ['$sort' => ['_id' => 1]]
+];
+$weeklyProfits = $db->orders->aggregate($weeklyProfitPipeline)->toArray();
+
+// Prepare data for charts
+$weeklyLabels = [];
+$weeklyData = [];
+$weeklyOrders = [];
+
+foreach ($weeklyProfits as $week) {
+    $weeklyLabels[] = 'Week ' . $week->_id;
+    $weeklyData[] = round($week->weeklyProfit, 2);
+    $weeklyOrders[] = $week->orderCount;
+}
+
+// Get most and least ordered products for lists
+$mostOrdered = array_slice($orderStats, 0, 5);
+$leastOrdered = array_slice(array_reverse($orderStats), 0, 5);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -58,34 +96,45 @@ $neverOrderedProducts = array_filter($allProducts, fn($product) => !in_array($pr
 <div class="container py-4">
   <h2 class="text-center mb-4">📊 Full Order Report</h2>
 
+  <!-- Charts Section -->
   <div class="row mb-5">
-  <!-- Ordered Products Table -->
-  <div class="col-md-7">
-    <div class="card shadow">
-      <div class="card-header bg-primary text-white">🛒 Products Ordered At Least Once</div>
-      <div class="card-body">
-        <table class="table table-bordered text-center align-middle">
-          <thead class="table-light">
-            <tr><th>Product Name</th><th>Times Ordered</th></tr>
-          </thead>
-          <tbody>
-          <?php foreach ($orderStats as $item): ?>
-            <tr><td><?= htmlspecialchars($item->_id) ?></td><td><?= $item->count ?></td></tr>
-          <?php endforeach; ?>
-          </tbody>
-        </table>
+    <!-- Most Ordered Products Chart -->
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">🏆 Most Ordered Products</div>
+        <div class="card-body">
+          <canvas id="mostOrderedChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly Profits Chart -->
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white">💰 Weekly Profits (Current Month)</div>
+        <div class="card-body">
+          <canvas id="weeklyProfitsChart" height="300"></canvas>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Chart Section -->
-  <div class="col-md-5 d-flex align-items-center justify-content-center">
-    <div class="chart-container">
-      <h5 class="text-center mb-3">🏆 Top 5 Bestsellers</h5>
-      <canvas id="topProductsChart" height="260"></canvas>
+  <!-- Ordered Products Table -->
+  <div class="card shadow mb-4">
+    <div class="card-header bg-info text-white">🛒 Products Ordered At Least Once</div>
+    <div class="card-body">
+      <table class="table table-bordered text-center align-middle">
+        <thead class="table-light">
+          <tr><th>Product Name</th><th>Times Ordered</th></tr>
+        </thead>
+        <tbody>
+        <?php foreach ($orderStats as $item): ?>
+          <tr><td><?= htmlspecialchars($item->_id) ?></td><td><?= $item->count ?></td></tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
     </div>
   </div>
-</div>
 <!-- Products Never Ordered Table -->
 <div class="card shadow mt-4">
   <div class="card-header bg-danger text-white">🚫 Products Never Ordered</div>
@@ -113,6 +162,45 @@ $neverOrderedProducts = array_filter($allProducts, fn($product) => !in_array($pr
   </div>
 </div>
 
+<!-- Most and Least Ordered Products Lists -->
+<div class="row g-4 mt-4">
+  <div class="col-md-6">
+    <div class="card shadow">
+      <div class="card-header bg-success text-white">
+        📈 Most Ordered Products
+      </div>
+      <div class="card-body">
+        <ul class="list-group">
+          <?php foreach ($mostOrdered as $item): ?>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <?= htmlspecialchars($item->_id) ?>
+              <span class="badge bg-success"><?= $item->count ?> times</span>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow">
+      <div class="card-header bg-danger text-white">
+        📉 Least Ordered Products
+      </div>
+      <div class="card-body">
+        <ul class="list-group">
+          <?php foreach ($leastOrdered as $item): ?>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <?= htmlspecialchars($item->_id) ?>
+              <span class="badge bg-danger"><?= $item->count ?> times</span>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <script>
@@ -126,42 +214,86 @@ document.querySelectorAll('.alert').forEach(el => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  const ctx = document.getElementById('topProductsChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'doughnut',
+  // Most Ordered Products Bar Chart
+  const mostOrderedCtx = document.getElementById('mostOrderedChart').getContext('2d');
+  new Chart(mostOrderedCtx, {
+    type: 'bar',
     data: {
-      labels: <?= json_encode(array_column(array_slice($orderStats, 0, 5), '_id')) ?>,
+      labels: <?= json_encode(array_column(array_slice($orderStats, 0, 8), '_id')) ?>,
       datasets: [{
-        label: 'Orders',
-        data: <?= json_encode(array_column(array_slice($orderStats, 0, 5), 'count')) ?>,
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.7)',
-          'rgba(255, 99, 132, 0.7)',
-          'rgba(255, 206, 86, 0.7)',
-          'rgba(75, 192, 192, 0.7)',
-          'rgba(153, 102, 255, 0.7)'
-        ],
-        borderColor: [
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 99, 132, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)'
-        ],
+        label: 'Times Ordered',
+        data: <?= json_encode(array_column(array_slice($orderStats, 0, 8), 'count')) ?>,
+        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+        borderColor: 'rgba(54, 162, 235, 1)',
         borderWidth: 1
       }]
     },
     options: {
       responsive: true,
-      animation: {
-        animateScale: true,
-        animateRotate: true,
-        duration: 1000,
-        easing: 'easeOutBounce'
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Number of Orders'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Products'
+          }
+        }
       },
       plugins: {
-        legend: { position: 'bottom' },
-        title: { display: false }
+        legend: { display: false },
+        title: { 
+          display: true,
+          text: 'Most Popular Products'
+        }
+      }
+    }
+  });
+
+  // Weekly Profits Line Chart
+  const weeklyProfitsCtx = document.getElementById('weeklyProfitsChart').getContext('2d');
+  new Chart(weeklyProfitsCtx, {
+    type: 'line',
+    data: {
+      labels: <?= json_encode($weeklyLabels) ?>,
+      datasets: [{
+        label: 'Weekly Profit (₪)',
+        data: <?= json_encode($weeklyData) ?>,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Profit (₪)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Week of Month'
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        title: { 
+          display: true,
+          text: 'Weekly Profits (Including VAT)'
+        }
       }
     }
   });

@@ -7,7 +7,7 @@ use MongoDB\BSON\ObjectId;
 
 if (!isset($_SESSION['user'])) {
     $_SESSION['error_message'] = "Session expired.";
-    header("Location: ../php/login.php");
+    header("Location: login.php");
     exit;
 }
 
@@ -16,7 +16,7 @@ $user = $db->users->findOne(['_id' => $userId]);
 
 if (!$user) {
     $_SESSION['error_message'] = "User not found.";
-    header("Location: ../index.php");
+    header("Location: index.php");
     exit;
 }
 
@@ -62,7 +62,7 @@ if (!empty($_FILES['profilePicture']['name'])) {
         $_SESSION['user']['profilePicture'] = $newFileName;
     } else {
         $_SESSION['error_message'] = "❌ Failed to upload profile picture.";
-        header("Location: ../editProfile.php");
+        header("Location: editProfile.php");
         exit;
     }
 }
@@ -74,12 +74,12 @@ $confirmPassword = $_POST['confirmPassword'] ?? '';
 if (!empty($newPassword)) {
     if ($newPassword !== $confirmPassword) {
         $_SESSION['error_message'] = "❌ Passwords do not match.";
-        header("Location: ../editProfile.php");
+        header("Location: editProfile.php");
         exit;
     }
     if (strlen($newPassword) < 6) {
         $_SESSION['error_message'] = "❌ Password must be at least 6 characters.";
-        header("Location: ../editProfile.php");
+        header("Location: editProfile.php");
         exit;
     }
     $updateData['password'] = password_hash($newPassword, PASSWORD_DEFAULT);
@@ -95,5 +95,5 @@ $result = $db->users->updateOne(
 $_SESSION['user']['name'] = $fullName;
 
 $_SESSION['success_message'] = "✅ Profile updated successfully.";
-header("Location: ../editProfile.php");
+header("Location: editProfile.php");
 exit;

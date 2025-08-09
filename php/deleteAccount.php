@@ -30,6 +30,6 @@ session_destroy();
 // Show logout message
 session_start();
 $_SESSION['logout_message'] = "👋 Your account has been successfully deleted.";
-header("Location: ../index.php");
+header("Location: index.php");
 exit;
 ?>

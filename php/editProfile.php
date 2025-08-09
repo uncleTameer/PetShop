@@ -1,11 +1,11 @@
 <?php
-require 'php/dbConnect.php';
+require 'dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 if (!isset($_SESSION['user'])) {
-    header("Location: php/login.php");
+    header("Location: login.php");
     exit;
 }
 
@@ -51,7 +51,7 @@ $profileFile = !empty($user['profilePicture']) && file_exists("uploads/" . $user
 <body>
 
 <div class="container">
-  <form class="profile-form" method="POST" action="php/updateProfile.php" enctype="multipart/form-data">
+  <form class="profile-form" method="POST" action="updateProfile.php" enctype="multipart/form-data">
     <h3 class="text-center mb-4">👤 Edit Your Profile</h3>
 
     <?php if (isset($_SESSION['success_message'])): ?>
@@ -144,7 +144,7 @@ $profileFile = !empty($user['profilePicture']) && file_exists("uploads/" . $user
 <script>
   function confirmDelete() {
     if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      window.location.href = 'php/deleteAccount.php';
+      window.location.href = 'deleteAccount.php';
     }
   }
 </script>

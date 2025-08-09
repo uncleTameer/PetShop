@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 use MongoDB\BSON\ObjectId;
 
 if (!isset($_SESSION['user']) || !isset($_GET['id'])) {
-    header("Location: ../myOrders.php");
+    header("Location: myOrders.php");
     exit;
 }
 
@@ -21,7 +21,7 @@ $order = $db->orders->findOne([
 // Validate ownership + status
 if (!$order || ($order['status'] ?? '') !== 'Pending') {
     $_SESSION['error_message'] = "❌ This order cannot be cancelled.";
-    header("Location: ../myOrders.php");
+    header("Location: myOrders.php");
     exit;
 }
 
@@ -45,5 +45,5 @@ $db->orders->updateOne(
 );
 
 $_SESSION['success_message'] = "✅ Order cancelled successfully.";
-header("Location: ../myOrders.php");
+header("Location: myOrders.php");
 exit;

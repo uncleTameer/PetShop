@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/php/dbConnect.php';
+require_once __DIR__ . '/dbConnect.php';
 ?>
 
 <?php
@@ -16,7 +16,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $client = new Google_Client();
 $client->setClientId('441326189251-dfmo63tji30jgd83mer8vr7b20k8o28e.apps.googleusercontent.com');
 $client->setClientSecret('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');
-$client->setRedirectUri('http://localhost/PetShop/googleCallback.php');
+$client->setRedirectUri('http://localhost/PetShop/php/googleCallback.php');
 $client->addScope('email');
 $client->addScope('profile');
 

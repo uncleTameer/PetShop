@@ -3,7 +3,7 @@ ob_start();
 error_reporting(E_ALL & ~E_DEPRECATED);
 
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/php/dbConnect.php'; // Connect to your MongoDB Atlas
+require_once __DIR__ . '/dbConnect.php'; // Connect to your MongoDB Atlas
 
 session_start();
 
@@ -11,7 +11,7 @@ session_start();
 $client = new Google_Client();
 $client->setClientId('441326189251-dfmo63tji30jgd83mer8vr7b20k8o28e.apps.googleusercontent.com');
 $client->setClientSecret('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');
-$client->setRedirectUri('http://localhost/PetShop/googleCallback.php');
+$client->setRedirectUri('http://localhost/PetShop/php/googleCallback.php');
 $client->addScope('email');
 $client->addScope('profile');
 

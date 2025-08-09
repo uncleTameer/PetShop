@@ -1,5 +1,5 @@
 <?php
-require 'php/dbConnect.php';
+require 'dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -27,7 +27,7 @@ try {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
     if (!isset($_SESSION['user'])) {
         $_SESSION['error_message'] = "You must be logged in to submit a review.";
-        header("Location: php/login.php");
+        header("Location: login.php");
         exit;
     }
 
@@ -98,10 +98,10 @@ $averageRating = $reviewCount > 0 ? round($totalRating / $reviewCount, 1) : 0;
             <a href="editProfile.php" class="btn btn-outline-info btn-sm me-2">👤 Edit Profile</a>
             <a href="myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a> 
             <a href="wishlist.php" class="btn btn-outline-danger btn-sm ms-2">❤️ Wishlist</a>
-            <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
+            <a href="logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
         <?php else: ?>
-            <a href="php/login.php" class="btn btn-outline-light btn-sm me-2">Login</a>
-            <a href="php/register.php" class="btn btn-outline-light btn-sm">Register</a>
+            <a href="login.php" class="btn btn-outline-light btn-sm me-2">Login</a>
+<a href="register.php" class="btn btn-outline-light btn-sm">Register</a>
         <?php endif; ?>
         <a href="cart.php" class="btn btn-warning btn-sm ms-3">🛒 Cart</a>
     </div>
@@ -167,9 +167,9 @@ $averageRating = $reviewCount > 0 ? round($totalRating / $reviewCount, 1) : 0;
             
             <div class="d-flex gap-2 mb-3">
                 <?php if ($product['stock'] > 0): ?>
-                    <form method="POST" action="php/addToCart.php" class="flex-fill">
+                    <form method="POST" action="addToCart.php" class="flex-fill">
                         <input type="hidden" name="name" value="<?= $product['name'] ?>">
-                                                                 <input type="hidden" name="redirect" value="../product.php?id=<?= $product['_id'] ?>">
+                                                                 <input type="hidden" name="redirect" value="product.php?id=<?= $product['_id'] ?>">
                         <button type="submit" class="btn btn-primary btn-lg w-100">🛒 Add to Cart</button>
                     </form>
                 <?php else: ?>
@@ -217,7 +217,7 @@ $averageRating = $reviewCount > 0 ? round($totalRating / $reviewCount, 1) : 0;
             </div>
         <?php else: ?>
             <div class="alert alert-info">
-                <a href="php/login.php">Login</a> to write a review for this product.
+                <a href="login.php">Login</a> to write a review for this product.
             </div>
         <?php endif; ?>
         

@@ -64,7 +64,7 @@ $unreadCount = $db->notifications->countDocuments(['read' => ['$ne' => true]]);
                  style="width: 35px; height: 35px; object-fit: cover;">
             <span>Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?></span>
         </div>
-        <a href="../index.php" class="btn btn-outline-light btn-sm me-2">🏠 Main Site</a>
+        <a href="../php/index.php" class="btn btn-outline-light btn-sm me-2">🏠 Main Site</a>
         <a href="../php/logout.php" class="btn btn-outline-light btn-sm">Logout</a>
     </div>
 </nav>

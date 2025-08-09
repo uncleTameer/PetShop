@@ -12,7 +12,7 @@ $isGuest = !isset($_SESSION['user']);
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
         $_SESSION['error_message'] = "❌ Your cart is empty.";  
-        header("Location: ../cart.php");
+        header("Location: cart.php");
         exit;
     }
 

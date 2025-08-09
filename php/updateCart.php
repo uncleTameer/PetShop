@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (empty($quantities)) {
         $_SESSION['error_message'] = "No quantities provided.";
-        header("Location: ../cart.php");
+        header("Location: cart.php");
         exit;
     }
 
@@ -40,10 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['error_message'] = "No changes made to cart.";
     }
 
-    header("Location: ../cart.php");
+    header("Location: cart.php");
     exit;
 } else {
-    header("Location: ../cart.php");
+    header("Location: cart.php");
     exit;
 }
 ?> 

@@ -65,9 +65,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     // ✅ Redirect based on role
                     if ($role === 'admin') {
-                        header("Location: ../admin/dashboard.php");
-                    } else {
-                        header("Location: ../index.php");
+                                header("Location: ../admin/dashboard.php");
+    } else {
+        header("Location: index.php");
                     }
                     exit;
                 } else {
@@ -206,7 +206,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
       <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
 
-      <a href="../googleLogin.php" class="btn btn-danger w-100 mb-3">
+      <a href="googleLogin.php" class="btn btn-danger w-100 mb-3">
         <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="height: 20px; margin-right: 8px;">
         Sign in with Google
       </a>

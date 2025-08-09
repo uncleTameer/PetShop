@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (!$productId) {
         $_SESSION['error_message'] = "Product ID is required.";
-        header("Location: ../cart.php");
+        header("Location: cart.php");
         exit;
     }
 
@@ -21,10 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['error_message'] = "Item not found in cart.";
     }
 
-    header("Location: ../cart.php");
+    header("Location: cart.php");
     exit;
 } else {
-    header("Location: ../cart.php");
+    header("Location: cart.php");
     exit;
 }
 ?> 

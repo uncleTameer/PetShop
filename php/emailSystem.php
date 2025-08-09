@@ -86,15 +86,15 @@ function handleContactForm() {
             } else {
                 $_SESSION['error_message'] = "❌ Failed to send message: $mailResult";
             }
-            header("Location: ../index.php");
+            header("Location: index.php");
             exit;
         } else {
             $_SESSION['error_message'] = "❌ Please fill all fields.";
-            header("Location: ../contact.php");
+            header("Location: contact.php");
             exit;
         }
     } else {
-        header("Location: ../contact.php");
+        header("Location: contact.php");
         exit;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require __DIR__ . '/php/dbConnect.php';
+require __DIR__ . '/dbConnect.php';
 
 use MongoDB\BSON\ObjectId;
 
@@ -75,10 +75,10 @@ $recommendation = "🎯 Check out our latest horse saddles!";
       </div>
       <a href="editProfile.php" class="btn btn-outline-info btn-sm">👤 Edit Profile</a>
       <a href="wishlist.php" class="btn btn-outline-danger btn-sm">❤️ Wishlist</a>
-      <a href="php/logout.php" class="btn btn-outline-light btn-sm">Logout</a>
+      <a href="logout.php" class="btn btn-outline-light btn-sm">Logout</a>
     <?php else: ?>
-      <a href="php/register.php" class="btn btn-outline-light btn-sm me-2">Register</a>
-      <a href="php/login.php" class="btn btn-outline-light btn-sm">Login</a>
+      <a href="register.php" class="btn btn-outline-light btn-sm me-2">Register</a>
+<a href="login.php" class="btn btn-outline-light btn-sm">Login</a>
     <?php endif; ?>
     <a href="cart.php" class="btn btn-outline-warning btn-sm ms-2">🛒 Cart</a>
   </div>

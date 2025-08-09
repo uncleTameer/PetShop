@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 use MongoDB\BSON\ObjectId;
 
 if (!isset($_SESSION['user']) || !isset($_SESSION['last_order_id'])) {
-    header("Location: ../index.php");
+    header("Location: index.php");
     exit;
 }
 
@@ -54,12 +54,12 @@ sendOrderConfirmationMail($toEmail, $userName, $orderDetailsHtml, $orderDetailsT
 <body>
 
 <nav class="navbar navbar-dark bg-dark px-4 mb-4">
-          <a class="navbar-brand" href="../index.php">🏠 Pet Shop</a>
+          <a class="navbar-brand" href="index.php">🏠 Pet Shop</a>
   <div class="ms-auto text-white">
     <?= $userName ?>
-            <a href="../myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a>
+            <a href="myOrders.php" class="btn btn-outline-light btn-sm ms-2">📦 My Orders</a>
         <a href="logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
-        <a href="../cart.php" class="btn btn-warning btn-sm ms-3">🛒 Cart</a>
+        <a href="cart.php" class="btn btn-warning btn-sm ms-3">🛒 Cart</a>
   </div>
 </nav>
 
@@ -86,8 +86,8 @@ sendOrderConfirmationMail($toEmail, $userName, $orderDetailsHtml, $orderDetailsT
     </div>
   </div>
 
-  <a href="../shop.php" class="btn btn-primary me-2">🛍 Keep Shopping</a>
-  <a href="../myOrders.php" class="btn btn-outline-secondary">📦 View My Orders</a>
+  <a href="shop.php" class="btn btn-primary me-2">🛍 Keep Shopping</a>
+<a href="myOrders.php" class="btn btn-outline-secondary">📦 View My Orders</a>
 </div>
 
 </body>

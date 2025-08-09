@@ -10,7 +10,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productName = $_POST['name'] ?? '';
     $quantity = (int)($_POST['quantity'] ?? 1);
-    $redirectUrl = $_POST['redirect'] ?? '../shop.php';
+    $redirectUrl = $_POST['redirect'] ?? 'shop.php';
 
     if (!$productName) {
         $_SESSION['error_message'] = "Product name is required.";
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: " . $redirectUrl);
     exit;
 } else {
-    header("Location: ../shop.php");
+    header("Location: shop.php");
     exit;
 }
 ?> 

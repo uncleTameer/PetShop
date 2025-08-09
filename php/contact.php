@@ -27,10 +27,10 @@ session_start();
   <div class="ms-auto text-white">
     <?php if (isset($_SESSION['user'])): ?>
       Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?>
-      <a href="php/logout.php" class="btn btn-outline-light btn-sm ms-3">Logout</a>
+      <a href="logout.php" class="btn btn-outline-light btn-sm ms-3">Logout</a>
     <?php else: ?>
-      <a href="php/login.php" class="btn btn-outline-light btn-sm me-2">Login</a>
-      <a href="php/register.php" class="btn btn-outline-light btn-sm">Register</a>
+      <a href="login.php" class="btn btn-outline-light btn-sm me-2">Login</a>
+<a href="register.php" class="btn btn-outline-light btn-sm">Register</a>
     <?php endif; ?>
     <a href="cart.php" class="btn btn-outline-warning btn-sm ms-3">🛒 Cart</a>
   </div>
@@ -46,7 +46,7 @@ session_start();
         We usually reply within 24 hours!
       </div>
 
-      <form action="php/emailSystem.php" method="POST" class="border p-4 rounded shadow-sm bg-light">
+      <form action="emailSystem.php" method="POST" class="border p-4 rounded shadow-sm bg-light">
 <input type="hidden" name="contact_form" value="1">
         <div class="mb-3">
           <label for="name" class="form-label">Your Name</label>
