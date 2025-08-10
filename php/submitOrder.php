@@ -28,7 +28,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         'items' => $cart,
         'total' => $total,
         'createdAt' => new MongoDB\BSON\UTCDateTime(),
-        'status' => 'Pending'
+    'status' => 'Pending',
+    'fulfillmentType' => ($_POST['fulfillmentType'] ?? 'shipping') === 'pickup' ? 'pickup' : 'shipping'
     ];
     
     // Add user info based on whether it's a guest or logged-in user

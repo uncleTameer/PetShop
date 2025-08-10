@@ -76,12 +76,12 @@ $delivered = filterOrdersByStatus($orders, 'Delivered');
       </table>
     </div>
 
-    <!-- Shipped -->
+    <!-- Shipped / Awaiting Collection -->
     <div class="col-md-6">
-      <h5 class="text-success text-center">🚚 Shipped Orders</h5>
+      <h5 class="text-success text-center">🚚 Shipped / 🏬 Awaiting Collection</h5>
       <table id="shippedOrders" class="table table-bordered table-striped text-center align-middle">
         <thead class="table-dark">
-          <tr><th>ID</th><th>Customer</th><th>Status</th><th>Action</th></tr>
+          <tr><th>ID</th><th>Customer</th><th>Fulfillment</th><th>Status</th><th>Action</th></tr>
         </thead>
         <tbody>
         <?php foreach ($shipped as $order): 
@@ -92,10 +92,12 @@ $delivered = filterOrdersByStatus($orders, 'Delivered');
           } else {
               $name = $order['guestInfo']['name'] ?? 'Guest User';
           }
+          $fulfillment = ($order['fulfillmentType'] ?? 'shipping') === 'pickup' ? 'Awaiting Collection' : 'Shipped';
         ?>
           <tr>
             <td><?= $shortId ?></td>
             <td><?= htmlspecialchars($name) ?></td>
+            <td><?= htmlspecialchars($fulfillment) ?></td>
             <td><?= htmlspecialchars($order['status']) ?></td>
             <td>
               <a href="orderDetails.php?id=<?= $order['_id'] ?>" class="btn btn-sm btn-outline-info">🔍 View</a>

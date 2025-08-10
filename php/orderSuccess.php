@@ -72,7 +72,8 @@ sendOrderConfirmationMail($toEmail, $userName, $orderDetailsHtml, $orderDetailsT
       <h5 class="card-title">🧾 Order Summary</h5>
       <p><strong>Order ID:</strong> <?= substr((string)$order['_id'], -5) ?></p>
       <p><strong>Placed On:</strong> <?= $orderDate ?></p>
-      <p><strong>Total:</strong> ₪<?= $orderTotal ?></p>
+  <p><strong>Total:</strong> ₪<?= $orderTotal ?></p>
+  <p><strong>Fulfillment:</strong> <?= ($order['fulfillmentType'] ?? 'shipping') === 'pickup' ? 'Store Pickup (Reserved)' : 'Shipping' ?></p>
       <hr>
       <h6>Items:</h6>
       <ul class="list-group text-start">

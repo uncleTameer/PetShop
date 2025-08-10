@@ -11,9 +11,10 @@ $total = 0;
 <head>
   <meta charset="UTF-8">
   <title>Your Cart</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <script src="js/bootstrap.bundle.min.js" defer></script>
+  <script src="../js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
 
@@ -21,11 +22,11 @@ $total = 0;
   <a class="navbar-brand" href="shop.php">⬅ Back to Shop</a>
   <div class="d-flex align-items-center text-white me-2">
         <?php if (!empty($_SESSION['user']['profilePicture'])): ?>
-          <img src="uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
+          <img src="../uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
                alt="Profile" class="rounded-circle me-2" 
                style="width: 35px; height: 35px; object-fit: cover;">
         <?php else: ?>
-          <img src="uploads/default.png" 
+          <img src="../uploads/default.png" 
                alt="Default" class="rounded-circle me-2" 
                style="width: 35px; height: 35px; object-fit: cover;">
         <?php endif; ?>
@@ -155,8 +156,25 @@ $total = 0;
             
             <h6 class="mb-3">Payment Information</h6>
             <form id="checkoutForm" method="POST" action="submitOrder.php">
+              <!-- Fulfillment Method -->
+              <h6 class="mb-3">Fulfillment Method</h6>
+              <div class="row mb-4">
+                <div class="col-12">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="fulfillmentType" id="fulfillShip" value="shipping" checked>
+                    <label class="form-check-label" for="fulfillShip">🚚 Ship to Address</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="fulfillmentType" id="fulfillPickup" value="pickup">
+                    <label class="form-check-label" for="fulfillPickup">🏬 Reserve for In-Store Pickup</label>
+                  </div>
+                </div>
+                <div class="col-12 small text-muted mt-2" id="fulfillmentHelp">
+                  Choose pickup if you want us to hold the items until you collect them.
+                </div>
+              </div>
               <?php if (!isset($_SESSION['user'])): ?>
-              <!-- Guest Information -->
+              <!-- Guest Information (always collected; could be simplified for pickup) -->
               <h6 class="mb-3">Customer Information</h6>
               <div class="row g-3 mb-4">
                 <div class="col-12">
@@ -214,7 +232,7 @@ $total = 0;
                          placeholder="123" maxlength="4">
                 </div>
                 
-                <div class="col-12">
+                <div class="col-12 shipping-only">
                   <label for="billingAddress" class="form-label">Billing Address</label>
                   <textarea class="form-control" id="billingAddress" name="billingAddress" rows="2" 
                             placeholder="Enter your billing address"></textarea>
@@ -316,6 +334,23 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+  // Toggle address fields for pickup vs shipping
+  const fulfillRadios = document.querySelectorAll('input[name="fulfillmentType"]');
+  const shippingOnlyEls = document.querySelectorAll('.shipping-only');
+  function updateFulfillmentVisibility() {
+    const isPickup = document.getElementById('fulfillPickup').checked;
+    shippingOnlyEls.forEach(el => {
+      el.style.display = isPickup ? 'none' : '';
+      // If hiding, clear inputs
+      if (isPickup) {
+        el.querySelectorAll('input, textarea').forEach(inp => inp.removeAttribute('required'));
+      } else {
+        el.querySelectorAll('input, textarea').forEach(inp => inp.setAttribute('required','required'));
+      }
+    });
+  }
+  fulfillRadios.forEach(r => r.addEventListener('change', updateFulfillmentVisibility));
+  updateFulfillmentVisibility();
 });
 </script>
 

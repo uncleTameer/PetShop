@@ -38,9 +38,10 @@ $recommendation = "🎯 Check out our latest horse saddles!";
 <head>
   <meta charset="UTF-8">
   <title>Horse & Camel</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/bootstrap.bundle.min.js" defer></script>
+  <!-- Asset paths adjusted: this file lives in /php so go up one level -->
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/bootstrap.bundle.min.js" defer></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 </head>
 <body>
@@ -63,11 +64,11 @@ $recommendation = "🎯 Check out our latest horse saddles!";
     <?php if (isset($_SESSION['user'])): ?>
       <div class="d-flex align-items-center text-white me-2">
         <?php if (!empty($_SESSION['user']['profilePicture'])): ?>
-          <img src="uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
+          <img src="../uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
                alt="Profile" class="rounded-circle me-2" 
                style="width: 35px; height: 35px; object-fit: cover;">
         <?php else: ?>
-          <img src="uploads/default.png" 
+          <img src="../uploads/default.png" 
                alt="Default" class="rounded-circle me-2" 
                style="width: 35px; height: 35px; object-fit: cover;">
         <?php endif; ?>
@@ -125,7 +126,7 @@ $recommendation = "🎯 Check out our latest horse saddles!";
       <?php foreach ($featuredProducts as $product): ?>
         <div class="col-md-4">
           <div class="card shadow-sm h-100 hover-zoom">
-            <img src="<?= htmlspecialchars($product['image']) ?>" class="card-img-top rounded" style="height: 200px; object-fit: cover;" alt="<?= htmlspecialchars($product['name']) ?>">
+            <img src="<?= htmlspecialchars(strpos($product['image'], 'uploads/') === 0 ? '../' . $product['image'] : '../uploads/default.png') ?>" class="card-img-top rounded" style="height: 200px; object-fit: cover;" alt="<?= htmlspecialchars($product['name']) ?>">
             <div class="card-body text-center">
               <h5 class="card-title"><?= htmlspecialchars($product['name']) ?></h5>
               <p class="badge bg-success fs-6">₪<?= number_format($product['price'], 2) ?></p>

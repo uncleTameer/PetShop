@@ -19,7 +19,9 @@ $orders = $db->orders->find(['userId' => $userId], ['sort' => ['createdAt' => -1
 <head>
   <meta charset="UTF-8">
   <title>My Orders</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
 
@@ -27,11 +29,11 @@ $orders = $db->orders->find(['userId' => $userId], ['sort' => ['createdAt' => -1
   <a class="navbar-brand" href="index.php">⬅ Back to Homepage</a>
   <div class="d-flex align-items-center text-white me-2">
         <?php if (!empty($_SESSION['user']['profilePicture'])): ?>
-          <img src="uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
+          <img src="../uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
                alt="Profile" class="rounded-circle me-2" 
                style="width: 35px; height: 35px; object-fit: cover;">
         <?php else: ?>
-          <img src="uploads/default.png" 
+          <img src="../uploads/default.png" 
                alt="Default" class="rounded-circle me-2" 
                style="width: 35px; height: 35px; object-fit: cover;">
         <?php endif; ?>

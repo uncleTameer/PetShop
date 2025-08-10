@@ -48,11 +48,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['success_message'] = "Updated quantity in cart!";
     } else {
         // Add new item
+        $rawImage = $product['image'] ?? 'default.png';
+        // Normalize path: remove leading ../ if present
+        $normalizedImage = preg_replace('#^\.\./#', '', $rawImage);
+        // Ensure it starts with uploads/ or fallback
+        if (strpos($normalizedImage, 'uploads/') !== 0) {
+            $normalizedImage = 'uploads/' . basename($normalizedImage);
+        }
         $_SESSION['cart'][$productId] = [
             'name' => $productName,
             'price' => $product['price'],
             'quantity' => $quantity,
-            'image' => $product['image'] ?? 'default.png'
+            'image' => $normalizedImage
         ];
         $_SESSION['success_message'] = "Added to cart successfully!";
     }

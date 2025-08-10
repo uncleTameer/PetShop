@@ -78,9 +78,9 @@ $wishlistItems = $db->wishlist->aggregate([
 <head>
     <meta charset="UTF-8">
     <title>My Wishlist - Pet Shop</title>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/bootstrap.bundle.min.js" defer></script>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/bootstrap.bundle.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -91,11 +91,11 @@ $wishlistItems = $db->wishlist->aggregate([
         <?php if (isset($_SESSION['user'])): ?>
             <div class="d-flex align-items-center text-white me-2">
                 <?php if (!empty($_SESSION['user']['profilePicture'])): ?>
-                    <img src="uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
+                    <img src="../uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
                          alt="Profile" class="rounded-circle me-2" 
                          style="width: 35px; height: 35px; object-fit: cover;">
                 <?php else: ?>
-                    <img src="uploads/default.png" 
+                    <img src="../uploads/default.png" 
                          alt="Default" class="rounded-circle me-2" 
                          style="width: 35px; height: 35px; object-fit: cover;">
                 <?php endif; ?>

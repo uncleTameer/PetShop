@@ -27,8 +27,9 @@ $profileFile = !empty($user['profilePicture']) && file_exists("uploads/" . $user
 <head>
   <meta charset="UTF-8">
   <title>Edit Profile - Horse & Camel</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <script src="js/bootstrap.bundle.min.js" defer></script>
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/bootstrap.bundle.min.js" defer></script>
   <style>
     body {
       background: #f8f9fa;
@@ -108,7 +109,7 @@ $profileFile = !empty($user['profilePicture']) && file_exists("uploads/" . $user
     <div class="form-section">
       <h5>🖼️ Profile Picture</h5>
       <div class="mb-2">
-        <img src="uploads/<?= $profileFile ?>" alt="Profile" class="img-thumbnail" style="height: 100px;">
+  <img src="../uploads/<?= $profileFile ?>" alt="Profile" class="img-thumbnail" style="height: 100px;">
       </div>
       <input type="file" name="profilePicture" class="form-control">
     </div>

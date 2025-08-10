@@ -39,8 +39,9 @@ $categories = $db->categories->find([], ['sort' => ['name' => 1]]);
 <head>
   <meta charset="UTF-8">
   <title>Shop - Pet Shop</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <script src="js/bootstrap.bundle.min.js" defer></script>
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
 
@@ -50,11 +51,11 @@ $categories = $db->categories->find([], ['sort' => ['name' => 1]]);
     <?php if (isset($_SESSION['user'])): ?>
       <div class="d-flex align-items-center text-white me-2">
         <?php if (!empty($_SESSION['user']['profilePicture'])): ?>
-          <img src="uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
+          <img src="../uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
                alt="Profile" class="rounded-circle me-2" 
                style="width: 35px; height: 35px; object-fit: cover;">
         <?php else: ?>
-          <img src="uploads/default.png" 
+          <img src="../uploads/default.png" 
                alt="Default" class="rounded-circle me-2" 
                style="width: 35px; height: 35px; object-fit: cover;">
         <?php endif; ?>
@@ -127,7 +128,7 @@ $categories = $db->categories->find([], ['sort' => ['name' => 1]]);
         <div class="col-md-4 mb-4">
           <div class="card h-100">
             <a href="product.php?id=<?= $product['_id'] ?>" class="text-decoration-none">
-              <img src="<?= $product['image'] ?>" class="card-img-top" alt="<?= $product['name'] ?>" style="height: 200px; object-fit: cover;">
+              <img src="<?= htmlspecialchars(strpos($product['image'], 'uploads/') === 0 ? '../' . $product['image'] : '../uploads/default.png') ?>" class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" style="height: 200px; object-fit: cover;">
             </a>
             <div class="card-body">
               <h5 class="card-title">

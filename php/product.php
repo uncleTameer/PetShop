@@ -72,9 +72,10 @@ $averageRating = $reviewCount > 0 ? round($totalRating / $reviewCount, 1) : 0;
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($product['name']) ?> - Pet Shop</title>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/bootstrap.bundle.min.js" defer></script>
+    <!-- Adjusted relative paths: product.php is inside /php -->
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/bootstrap.bundle.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -85,11 +86,11 @@ $averageRating = $reviewCount > 0 ? round($totalRating / $reviewCount, 1) : 0;
         <?php if (isset($_SESSION['user'])): ?>
             <div class="d-flex align-items-center text-white me-2">
                 <?php if (!empty($_SESSION['user']['profilePicture'])): ?>
-                    <img src="uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
+                    <img src="../uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture']) ?>" 
                          alt="Profile" class="rounded-circle me-2" 
                          style="width: 35px; height: 35px; object-fit: cover;">
                 <?php else: ?>
-                    <img src="uploads/default.png" 
+                    <img src="../uploads/default.png" 
                          alt="Default" class="rounded-circle me-2" 
                          style="width: 35px; height: 35px; object-fit: cover;">
                 <?php endif; ?>
@@ -125,7 +126,7 @@ $averageRating = $reviewCount > 0 ? round($totalRating / $reviewCount, 1) : 0;
     <div class="row">
         <!-- Product Image -->
         <div class="col-md-6">
-            <img src="<?= htmlspecialchars($product['image']) ?>" 
+            <img src="<?= htmlspecialchars(strpos($product['image'], 'uploads/') === 0 ? '../' . $product['image'] : '../uploads/default.png') ?>" 
                  class="img-fluid rounded shadow" 
                  alt="<?= htmlspecialchars($product['name']) ?>">
         </div>

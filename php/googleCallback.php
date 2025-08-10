@@ -2,16 +2,15 @@
 ob_start();
 error_reporting(E_ALL & ~E_DEPRECATED);
 
-require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/dbConnect.php'; // Connect to your MongoDB Atlas
+require_once __DIR__ . '/dbConnect.php'; // Pulls in ../vendor/autoload.php
 
 session_start();
 
 // Setup Google client
 $client = new Google_Client();
-$client->setClientId('441326189251-dfmo63tji30jgd83mer8vr7b20k8o28e.apps.googleusercontent.com');
-$client->setClientSecret('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');
-$client->setRedirectUri('http://localhost/PetShop/php/googleCallback.php');
+$client->setClientId('441326189251-dfmo63tji30jgd83mer8vr7b20k8o28e.apps.googleusercontent.com'); // TODO: env var
+$client->setClientSecret('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'); // TODO: env var / secret manager
+$client->setRedirectUri('http://localhost/PetShop/php/googleCallback.php'); // TODO: config driven
 $client->addScope('email');
 $client->addScope('profile');
 
@@ -22,7 +21,7 @@ if (isset($_GET['code'])) {
     if (!isset($token['error'])) {
         $client->setAccessToken($token['access_token']);
         $oauth = new Google_Service_Oauth2($client);
-        $googleUser = $oauth->userinfo->get();
+    $googleUser = $oauth->userinfo->get(); // Contains id, email, name
 
         $email = $googleUser->email;
         $name = $googleUser->name;
@@ -48,12 +47,14 @@ if (isset($_GET['code'])) {
         }
 
         // Set full session
-        $_SESSION['user'] = [
+    $_SESSION['user'] = [
             'id' => (string) $userId,
             'email' => $email,
             'name' => $name,
             'isAdmin' => $email === 'admin@admin.com'
         ];
+
+    // TODO: Persist oauth provider + google id for future linking
 
         // Redirect to appropriate page
         header('Location: ' . ($_SESSION['user']['isAdmin'] ? 'admin/dashboard.php' : 'index.php'));

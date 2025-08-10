@@ -28,8 +28,9 @@ try {
 <head>
   <meta charset="UTF-8">
   <title>Order Details</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <script src="js/bootstrap.bundle.min.js" defer></script>
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
 
@@ -48,6 +49,7 @@ try {
     <strong>Order ID:</strong> <?= $order['_id'] ?><br>
     <strong>Total:</strong> ₪<?= number_format($order['total'], 2) ?><br>
     <strong>Status:</strong> <?= $order['status'] ?? 'Pending' ?><br>
+  <strong>Fulfillment:</strong> <?= ($order['fulfillmentType'] ?? 'shipping') === 'pickup' ? 'Store Pickup (Awaiting Collection)' : 'Shipping' ?><br>
     <strong>Placed On:</strong> <?= isset($order['createdAt']) ? $order['createdAt']->toDateTime()->format('d/m/Y H:i') : 'Unknown' ?>
   </div>
 
