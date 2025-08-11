@@ -1,11 +1,6 @@
 <?php
-require_once __DIR__ . '/dbConnect.php'; // This already pulls in ..//vendor/autoload.php
-
-ob_start(); // Start output buffering
-error_reporting(E_ALL & ~E_DEPRECATED); // Hide deprecation warnings
-
-// NOTE: Autoloader already loaded via dbConnect.php. If that ever changes, uncomment below.
-// require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/dbConnect.php';
+error_reporting(E_ALL & ~E_DEPRECATED);
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -24,6 +19,5 @@ $authUrl = $client->createAuthUrl();
 // Optional: add &state for CSRF protection
 header('Location: ' . filter_var($authUrl, FILTER_SANITIZE_URL));
 exit;
-
-ob_end_flush(); // End output buffering
+?>
 ?>
