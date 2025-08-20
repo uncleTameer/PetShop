@@ -46,16 +46,6 @@ $recommendation = "🎯 Check out our latest horse saddles!";
 </head>
 <body>
 
-<!-- Flash Messages -->
-<?php foreach (['logout_message', 'success_message'] as $msgType): ?>
-  <?php if (isset($_SESSION[$msgType])): ?>
-    <div class="alert alert-<?= $msgType === 'success_message' ? 'success' : 'info' ?> text-center m-3 flash-message">
-      <?= $_SESSION[$msgType] ?>
-    </div>
-    <?php unset($_SESSION[$msgType]); ?>
-  <?php endif; ?>
-<?php endforeach; ?>
-
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
   <a class="navbar-brand" href="#">Horse & Camel</a>

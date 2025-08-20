@@ -7,14 +7,13 @@ if (session_status() === PHP_SESSION_NONE) {
 use MongoDB\BSON\ObjectId;
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header("Location: dashboard.php");
+    header("Location: ../index.php");
     exit;
 }
 
 // Handle delete action
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $id = $_GET['id'];
-    
     try {
         $product = $db->products->findOne(['_id' => new ObjectId($id)]);
 
@@ -35,16 +34,19 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     } catch (Exception $e) {
         $_SESSION['error_message'] = "❌ Error: " . $e->getMessage();
     }
-    
     header("Location: manageProducts.php");
     exit;
 }
 
+// ---------- FILTER LOGIC: default show all; filter only when lowStock present ----------
 $filter = [];
+$lowStockThreshold = null;
 
-if (isset($_GET['lowStock']) && $_GET['lowStock'] == 1) {
-    $filter = ['stock' => ['$lt' => 5]];
+if (isset($_GET['lowStock']) && is_numeric($_GET['lowStock']) && (int)$_GET['lowStock'] > 0) {
+    $lowStockThreshold = (int) $_GET['lowStock'];
+    $filter = ['stock' => ['$lt' => $lowStockThreshold]];
 }
+// ----------------------------------------------------------------
 
 $products = $db->products->find($filter);
 ?>
@@ -74,7 +76,6 @@ $products = $db->products->find($filter);
 <div class="container py-4">
   <h2 class="text-center mb-4">📦 Manage Products</h2>
 
-
 <div class="container py-4">
 
 <?php if (isset($_SESSION['success_message'])): ?>
@@ -87,10 +88,48 @@ $products = $db->products->find($filter);
   <?php unset($_SESSION['error_message']); ?>
 <?php endif; ?>
 
-  <a href="manageProducts.php?lowStock=1" class="btn btn-outline-danger mb-3">🔻 View Low Stock</a>
-  <a href="manageProducts.php" class="btn btn-outline-secondary mb-3">🔁 View All</a>
+  <!-- Controls -->
+  <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+    <!-- View All -->
+    <a href="manageProducts.php" class="btn btn-outline-secondary">🔁 View All</a>
 
-  <a href="addProduct.php" class="btn btn-success mb-3">➕ Add New Product</a>
+    <!-- Low Stock Filter Form -->
+    <form id="lowStockForm" method="GET" action="manageProducts.php" class="d-flex flex-wrap gap-2 align-items-center">
+      <?php
+        $current  = ($lowStockThreshold !== null) ? (int)$lowStockThreshold : null;
+        $options  = [5, 10, 20, 30];
+        $inPreset = $current !== null && in_array($current, $options, true);
+      ?>
+      <label for="lowStockSelect" class="mb-0">Low stock threshold:</label>
+      <select id="lowStockSelect" class="form-select form-select-sm" style="width: 140px">
+        <option value="" <?= $inPreset ? '' : 'selected' ?>>(choose)</option>
+        <?php foreach ($options as $opt): ?>
+          <option value="<?= $opt ?>" <?= ($inPreset && $current === $opt) ? 'selected' : ''?>>&lt; <?= $opt ?></option>
+        <?php endforeach; ?>
+      </select>
+
+      <label for="lowStockCustom" class="mb-0">or custom:</label>
+      <input type="number" id="lowStockCustom" min="1"
+             class="form-control form-control-sm" style="width: 90px"
+             value="<?= (!$inPreset && $current !== null) ? htmlspecialchars((string)$current) : '' ?>"
+             placeholder="Any">
+
+      <button type="submit" class="btn btn-outline-primary btn-sm">Apply</button>
+
+      <noscript>
+        <!-- Fallback if JS disabled -->
+        <input type="hidden" name="lowStock" value="<?= $current ?? '' ?>">
+      </noscript>
+    </form>
+
+    <!-- Active Filter Badge -->
+    <?php if ($current !== null): ?>
+      <span class="badge bg-warning text-dark">Filtering: stock &lt; <?= (int)$current ?></span>
+    <?php endif; ?>
+
+    <!-- Add New Product -->
+    <a href="addProduct.php" class="btn btn-success ms-auto">➕ Add New Product</a>
+  </div>
 
   <table class="table table-bordered table-striped text-center align-middle">
     <thead class="table-dark">
@@ -105,7 +144,7 @@ $products = $db->products->find($filter);
     </thead>
     <tbody>
       <?php foreach ($products as $product): ?>
-        <tr class="<?= $product['stock'] < 5 ? 'table-warning' : '' ?>">
+        <tr class="<?= ($lowStockThreshold !== null && isset($product['stock']) && $product['stock'] < $lowStockThreshold) ? 'table-warning' : '' ?>">
           <td><?= htmlspecialchars($product['name']) ?></td>
           <td><?= number_format($product['price'], 2) ?></td>
           <td>
@@ -143,8 +182,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
       alert.style.transition = 'opacity 0.5s ease';
       alert.style.opacity = '0';
-      setTimeout(() => alert.remove(), 500); // remove after fade
-    }, 3000); // 3 seconds
+      setTimeout(() => alert.remove(), 500);
+    }, 3000);
   });
 });
 </script>
@@ -159,6 +198,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+</script>
+
+<script>
+(function () {
+  const form   = document.getElementById('lowStockForm');
+  if (!form) return;
+
+  const select = form.querySelector('#lowStockSelect');
+  const input  = form.querySelector('#lowStockCustom');
+
+  // Keep the two inputs mutually exclusive
+  select.addEventListener('change', () => { input.value = ''; });
+  input.addEventListener('input',  () => { if (input.value !== '') select.value = ''; });
+
+  // Ensure exactly one lowStock value is submitted
+  form.addEventListener('submit', () => {
+    // Remove previously added hidden field(s)
+    [...form.querySelectorAll('input[name="lowStock"]')].forEach(n => n.remove());
+
+    let value = '';
+    if (input.value.trim() !== '') {
+      value = input.value.trim();
+    } else if (select.value !== '') {
+      value = select.value;
+    }
+
+    if (value !== '') {
+      const hidden = document.createElement('input');
+      hidden.type  = 'hidden';
+      hidden.name  = 'lowStock';
+      hidden.value = value;
+      form.appendChild(hidden);
+    }
+  });
+})();
 </script>
 
 </body>

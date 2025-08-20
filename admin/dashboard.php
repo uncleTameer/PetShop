@@ -3,20 +3,25 @@ require_once '../php/dbConnect.php';
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
+
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header("Location: ../php/index.php");
+    header("Location: ../index.php");
     exit;
 }
 
+// ---- Low-stock threshold (default 5; accepts ?lowStock=N) ----
+$lowStockThreshold = (isset($_GET['lowStock']) && is_numeric($_GET['lowStock']) && (int)$_GET['lowStock'] > 0)
+  ? (int)$_GET['lowStock']
+  : 5;
 
-// Query totals
-$productCount = $db->products->countDocuments();
-$userCount = $db->users->countDocuments();
-$orderCount = $db->orders->countDocuments();
-$lowStockCount = $db->products->countDocuments(['stock' => ['$lt' => 5]]);
+// ---- Totals ----
+$productCount        = $db->products->countDocuments();
+$userCount           = $db->users->countDocuments();
+$orderCount          = $db->orders->countDocuments();
+$lowStockCount       = $db->products->countDocuments(['stock' => ['$lt' => $lowStockThreshold]]);
 $unreadNotifications = $db->notifications->countDocuments(['read' => ['$ne' => true]]);
 
-// Query product order stats
+// ---- Product order stats (kept if you use it elsewhere) ----
 $pipeline = [
     ['$unwind' => '$items'],
     ['$group' => [
@@ -25,10 +30,8 @@ $pipeline = [
     ]],
     ['$sort' => ['count' => -1]]
 ];
-
 $productStats = $db->orders->aggregate($pipeline)->toArray();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,6 +57,35 @@ $productStats = $db->orders->aggregate($pipeline)->toArray();
 
 <div class="container py-4">
   <h2 class="text-center mb-4">Welcome, Admin 👋</h2>
+
+  <!-- Threshold control (preset + custom) -->
+  <form id="lowStockForm" method="GET" action="dashboard.php" class="d-flex flex-wrap align-items-center gap-2 mb-4">
+    <?php
+      $options  = [5, 10, 20, 30];
+      $current  = (int)$lowStockThreshold;
+      $inPreset = in_array($current, $options, true);
+    ?>
+    <label for="lowStockSelect" class="mb-0">Low stock threshold:</label>
+    <select id="lowStockSelect" class="form-select form-select-sm" style="width: 140px">
+      <option value="" <?= $inPreset ? '' : 'selected' ?>>(choose)</option>
+      <?php foreach ($options as $opt): ?>
+        <option value="<?= $opt ?>" <?= ($inPreset && $current === $opt) ? 'selected' : ''?>>&lt; <?= $opt ?></option>
+      <?php endforeach; ?>
+    </select>
+
+    <label for="lowStockCustom" class="mb-0">or custom:</label>
+    <input type="number" id="lowStockCustom" min="1"
+           class="form-control form-control-sm" style="width: 90px"
+           value="<?= (!$inPreset && $current > 0) ? htmlspecialchars((string)$current) : '' ?>"
+           placeholder="Any">
+
+    <button type="submit" class="btn btn-outline-danger btn-sm">Apply</button>
+
+    <noscript>
+      <input type="hidden" name="lowStock" value="<?= (int)$current ?>">
+      <button type="submit" class="btn btn-outline-danger btn-sm">Apply</button>
+    </noscript>
+  </form>
 
   <div class="row g-4 mb-5">
     <!-- Total Products -->
@@ -92,13 +124,13 @@ $productStats = $db->orders->aggregate($pipeline)->toArray();
       </a>
     </div>
 
-    <!-- Low Stock -->
+    <!-- Low Stock (uses dynamic threshold) -->
     <div class="col-md-3">
-      <a href="manageProducts.php?lowStock=1" class="text-decoration-none">
+      <a href="manageProducts.php?lowStock=<?= (int)$lowStockThreshold ?>" class="text-decoration-none">
         <div class="card text-white bg-danger shadow-sm">
           <div class="card-body text-center">
             <h4><?= $lowStockCount ?></h4>
-            <p class="card-text">Low Stock Items</p>
+            <p class="card-text">Low Stock Items (&lt; <?= (int)$lowStockThreshold ?>)</p>
           </div>
         </div>
       </a>
@@ -117,7 +149,7 @@ $productStats = $db->orders->aggregate($pipeline)->toArray();
     </div>
   </div>
 
-  <div class="text-center mt-5">
+  <div class="text-center mt-4">
     <div class="d-flex justify-content-center gap-3 flex-wrap">
       <a href="orderReport.php" class="btn btn-outline-primary btn-lg">📊 View Full Order Report</a>
       <a href="notifications.php" class="btn btn-outline-warning btn-lg">
@@ -130,9 +162,41 @@ $productStats = $db->orders->aggregate($pipeline)->toArray();
       <a href="createAccount.php" class="btn btn-outline-info btn-lg">👤 Create Account</a>
     </div>
   </div>
-
-
 </div>
+
+<script>
+// Keep dropdown and custom input mutually exclusive, submit one lowStock value
+(function () {
+  const form   = document.getElementById('lowStockForm');
+  if (!form) return;
+
+  const select = form.querySelector('#lowStockSelect');
+  const input  = form.querySelector('#lowStockCustom');
+
+  select.addEventListener('change', () => { input.value = ''; });
+  input.addEventListener('input',  () => { if (input.value !== '') select.value = ''; });
+
+  form.addEventListener('submit', () => {
+    // Remove previously added hidden field(s)
+    [...form.querySelectorAll('input[name="lowStock"]')].forEach(n => n.remove());
+
+    let value = '';
+    if (input.value.trim() !== '') {
+      value = input.value.trim();
+    } else if (select.value !== '') {
+      value = select.value;
+    }
+
+    if (value !== '') {
+      const hidden = document.createElement('input');
+      hidden.type  = 'hidden';
+      hidden.name  = 'lowStock';
+      hidden.value = value;
+      form.appendChild(hidden);
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
