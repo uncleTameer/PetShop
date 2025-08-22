@@ -1,7 +1,5 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-  session_start();
-}
+require 'dbConnect.php';
 $cart = $_SESSION['cart'] ?? [];
 $total = 0;
 ?>

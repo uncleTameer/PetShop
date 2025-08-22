@@ -1,8 +1,5 @@
 <?php
 require_once '../php/dbConnect.php';
-if (session_status() === PHP_SESSION_NONE) {
-  session_start();
-}
 
 use MongoDB\BSON\ObjectId;
 
@@ -28,12 +25,14 @@ if (!$product) {
     $price = floatval($_POST['price']);
     $categoryId = $_POST['categoryId'];
     $stock = intval($_POST['stock']);
+    $lowStockThreshold = intval($_POST['lowStockThreshold'] ?? 5);
 
     $updateData = [
         'name' => $name,
         'price' => $price,
         'categoryId' => new MongoDB\BSON\ObjectId($categoryId),
         'stock' => $stock,
+        'lowStockThreshold' => $lowStockThreshold,
     ];
 
     // Handle optional new image
@@ -72,6 +71,7 @@ if (!$product) {
   <meta charset="UTF-8">
   <title>Edit Product</title>
   <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/western-theme.css">
   <script src="../js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
@@ -134,6 +134,13 @@ if (!$product) {
     <div class="mb-3">
       <label>Stock</label>
       <input type="number" name="stock" class="form-control" value="<?= $product['stock'] ?>" required>
+    </div>
+
+    <div class="mb-3">
+      <label>Low Stock Threshold</label>
+      <input type="number" name="lowStockThreshold" class="form-control" 
+             value="<?= $product['lowStockThreshold'] ?? 5 ?>" min="1" max="100" required>
+      <small class="form-text text-muted">Alert when stock falls below this number</small>
     </div>
 
     <div class="mb-3">

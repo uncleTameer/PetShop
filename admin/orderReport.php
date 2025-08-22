@@ -1,8 +1,5 @@
 <?php
 require_once '../php/dbConnect.php';
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 use MongoDB\BSON\ObjectId;
 
@@ -56,6 +53,61 @@ foreach ($weeklyProfits as $week) {
     $weeklyOrders[] = $week->orderCount;
 }
 
+// Customer Lifetime Value Analysis
+$clvPipeline = [
+    ['$group' => [
+        '_id' => '$userId',
+        'totalSpent' => ['$sum' => '$total'],
+        'orderCount' => ['$sum' => 1],
+        'firstOrder' => ['$min' => '$createdAt'],
+        'lastOrder' => ['$max' => '$createdAt']
+    ]],
+    ['$addFields' => [
+        'averageOrderValue' => ['$divide' => ['$totalSpent', '$orderCount']],
+        'customerLifetime' => ['$divide' => [
+            ['$subtract' => ['$lastOrder', '$firstOrder']], 
+            1000 * 60 * 60 * 24 // Convert to days
+        ]]
+    ]],
+    ['$sort' => ['totalSpent' => -1]],
+    ['$limit' => 10]
+];
+$topCustomers = $db->orders->aggregate($clvPipeline)->toArray();
+
+// Seasonal Order Trends (Last 12 months)
+$seasonalPipeline = [
+    ['$match' => [
+        'createdAt' => [
+            '$gte' => new MongoDB\BSON\UTCDateTime(strtotime('-12 months') * 1000)
+        ]
+    ]],
+    ['$addFields' => [
+        'month' => ['$month' => '$createdAt'],
+        'year' => ['$year' => '$createdAt']
+    ]],
+    ['$group' => [
+        '_id' => ['month' => '$month', 'year' => '$year'],
+        'orderCount' => ['$sum' => 1],
+        'totalRevenue' => ['$sum' => '$total'],
+        'avgOrderValue' => ['$avg' => '$total']
+    ]],
+    ['$sort' => ['_id.year' => 1, '_id.month' => 1]]
+];
+$seasonalData = $db->orders->aggregate($seasonalPipeline)->toArray();
+
+// Prepare seasonal data for chart
+$monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+$seasonalLabels = [];
+$seasonalOrderCounts = [];
+$seasonalRevenue = [];
+
+foreach ($seasonalData as $data) {
+    $monthName = $monthNames[$data->_id->month - 1] . ' ' . $data->_id->year;
+    $seasonalLabels[] = $monthName;
+    $seasonalOrderCounts[] = $data->orderCount;
+    $seasonalRevenue[] = round($data->totalRevenue, 2);
+}
+
 // Get most and least ordered products for lists
 $mostOrdered = array_slice($orderStats, 0, 5);
 $leastOrdered = array_slice(array_reverse($orderStats), 0, 5);
@@ -66,6 +118,7 @@ $leastOrdered = array_slice(array_reverse($orderStats), 0, 5);
   <meta charset="UTF-8">
   <title>Order Report - Admin</title>
   <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/western-theme.css">
   <link rel="stylesheet" href="../css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/bootstrap.bundle.min.js" defer></script>
@@ -114,6 +167,29 @@ $leastOrdered = array_slice(array_reverse($orderStats), 0, 5);
         <div class="card-header bg-success text-white">💰 Weekly Profits (Current Month)</div>
         <div class="card-body">
           <canvas id="weeklyProfitsChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Analytics Charts -->
+  <div class="row mb-5">
+    <!-- Customer Lifetime Value Chart -->
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-warning text-white">👑 Top Customers by Lifetime Value</div>
+        <div class="card-body">
+          <canvas id="clvChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seasonal Trends Chart -->
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-info text-white">📅 Seasonal Order Trends (12 Months)</div>
+        <div class="card-body">
+          <canvas id="seasonalChart" height="300"></canvas>
         </div>
       </div>
     </div>
@@ -198,6 +274,47 @@ $leastOrdered = array_slice(array_reverse($orderStats), 0, 5);
         </ul>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Top Customers Analysis -->
+<div class="card shadow mt-4">
+  <div class="card-header bg-warning text-white">👑 Top 10 Customers by Lifetime Value</div>
+  <div class="card-body">
+    <?php if (empty($topCustomers)): ?>
+      <div class="alert alert-info text-center mb-0">
+        📊 No customer data available yet.
+      </div>
+    <?php else: ?>
+      <div class="table-responsive">
+        <table class="table table-bordered text-center align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Customer ID</th>
+              <th>Total Spent (₪)</th>
+              <th>Orders</th>
+              <th>Avg Order (₪)</th>
+              <th>Customer Lifetime (Days)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($topCustomers as $customer): ?>
+              <tr>
+                <td>
+                  <a href="userProfile.php?id=<?= $customer->_id ?>" class="text-decoration-none">
+                    <?= substr($customer->_id, 0, 8) ?>...
+                  </a>
+                </td>
+                <td class="text-success fw-bold">₪<?= number_format($customer->totalSpent, 2) ?></td>
+                <td><span class="badge bg-primary"><?= $customer->orderCount ?></span></td>
+                <td>₪<?= number_format($customer->averageOrderValue, 2) ?></td>
+                <td><?= round($customer->customerLifetime, 1) ?> days</td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    <?php endif; ?>
   </div>
 </div>
 
@@ -293,6 +410,112 @@ document.addEventListener('DOMContentLoaded', () => {
         title: { 
           display: true,
           text: 'Weekly Profits (Including VAT)'
+        }
+      }
+    }
+  });
+
+  // Customer Lifetime Value Chart
+  const clvCtx = document.getElementById('clvChart').getContext('2d');
+  new Chart(clvCtx, {
+    type: 'doughnut',
+    data: {
+      labels: <?= json_encode(array_map(function($customer) { return '₪' . number_format($customer->totalSpent, 0); }, array_slice($topCustomers, 0, 8))) ?>,
+      datasets: [{
+        data: <?= json_encode(array_column(array_slice($topCustomers, 0, 8), 'totalSpent')) ?>,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.8)',
+          'rgba(54, 162, 235, 0.8)',
+          'rgba(255, 206, 86, 0.8)',
+          'rgba(75, 192, 192, 0.8)',
+          'rgba(153, 102, 255, 0.8)',
+          'rgba(255, 159, 64, 0.8)',
+          'rgba(199, 199, 199, 0.8)',
+          'rgba(83, 102, 255, 0.8)'
+        ],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 20,
+            usePointStyle: true
+          }
+        },
+        title: {
+          display: true,
+          text: 'Top Customers by Total Spending'
+        }
+      }
+    }
+  });
+
+  // Seasonal Trends Chart
+  const seasonalCtx = document.getElementById('seasonalChart').getContext('2d');
+  new Chart(seasonalCtx, {
+    type: 'bar',
+    data: {
+      labels: <?= json_encode($seasonalLabels) ?>,
+      datasets: [{
+        label: 'Order Count',
+        data: <?= json_encode($seasonalOrderCounts) ?>,
+        backgroundColor: 'rgba(255, 159, 64, 0.7)',
+        borderColor: 'rgba(255, 159, 64, 1)',
+        borderWidth: 1,
+        yAxisID: 'y'
+      }, {
+        label: 'Revenue (₪)',
+        data: <?= json_encode($seasonalRevenue) ?>,
+        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+        yAxisID: 'y1'
+      }]
+    },
+    options: {
+      responsive: true,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Month'
+          }
+        },
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          title: {
+            display: true,
+            text: 'Order Count'
+          }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: {
+            display: true,
+            text: 'Revenue (₪)'
+          },
+          grid: {
+            drawOnChartArea: false,
+          },
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Monthly Order Trends & Revenue'
         }
       }
     }

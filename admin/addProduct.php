@@ -1,8 +1,5 @@
 <?php
 require_once '../php/dbConnect.php';
-if (session_status() === PHP_SESSION_NONE) {
-  session_start();
-}
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     header("Location: dashboard.php");
@@ -17,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
     $price = floatval($_POST['price']);
     $categoryId = $_POST['categoryId'];
     $stock = intval($_POST['stock']);
+    $lowStockThreshold = intval($_POST['lowStockThreshold'] ?? 5);
 
     // Validate image
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
@@ -36,6 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
                 'price' => $price,
                 'categoryId' => new MongoDB\BSON\ObjectId($categoryId),
                 'stock' => $stock,
+                'lowStockThreshold' => $lowStockThreshold,
                 'image' => 'uploads/' . $filename // relative path
             ]);
 
@@ -57,6 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
   <meta charset="UTF-8">
   <title>Add Product</title>
   <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/western-theme.css">
   <script src="../js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
@@ -106,6 +106,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
   <div class="mb-3">
     <label>Stock</label>
     <input type="number" name="stock" class="form-control" required>
+  </div>
+
+  <div class="mb-3">
+    <label>Low Stock Threshold</label>
+    <input type="number" name="lowStockThreshold" class="form-control" value="5" min="1" max="100" required>
+    <small class="form-text text-muted">Alert when stock falls below this number</small>
   </div>
 
   <div class="mb-3">

@@ -1,10 +1,6 @@
 <?php
 require 'dbConnect.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

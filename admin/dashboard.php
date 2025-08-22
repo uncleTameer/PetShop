@@ -1,8 +1,5 @@
 <?php
 require_once '../php/dbConnect.php';
-if (session_status() === PHP_SESSION_NONE) {
-  session_start();
-}
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     header("Location: ../php/index.php");
     exit;
@@ -13,7 +10,13 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
 $productCount = $db->products->countDocuments();
 $userCount = $db->users->countDocuments();
 $orderCount = $db->orders->countDocuments();
-$lowStockCount = $db->products->countDocuments(['stock' => ['$lt' => 5]]);
+// Get current low stock threshold
+$currentThreshold = 5;
+$thresholdDoc = $db->products->findOne(['lowStockThreshold' => ['$exists' => true]]);
+if ($thresholdDoc && isset($thresholdDoc['lowStockThreshold'])) {
+    $currentThreshold = $thresholdDoc['lowStockThreshold'];
+}
+$lowStockCount = $db->products->countDocuments(['stock' => ['$lt' => $currentThreshold]]);
 $unreadNotifications = $db->notifications->countDocuments(['read' => ['$ne' => true]]);
 
 // Query product order stats
@@ -35,6 +38,7 @@ $productStats = $db->orders->aggregate($pipeline)->toArray();
   <meta charset="UTF-8">
   <title>Admin Dashboard</title>
   <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/western-theme.css">
   <script src="../js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>

@@ -1,6 +1,5 @@
 <?php
 require_once '../php/dbConnect.php';
-if (session_status() === PHP_SESSION_NONE) session_start();
 
 if (!in_array($_SESSION['user']['role'], ['admin'])) {
   header("Location: ../php/index.php");
@@ -17,6 +16,7 @@ $myEmail = $_SESSION['user']['email'];
   <meta charset="UTF-8">
   <title>Manage Users - Horse & Camel</title>
   <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/western-theme.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
   <style>
     tbody tr:hover {
@@ -97,8 +97,13 @@ $myEmail = $_SESSION['user']['email'];
             <?php endif; ?>
           </td>
           <td>
-            <?php if ($user['email'] !== $myEmail): ?>
-              <div class="d-flex flex-column align-items-center gap-2">
+            <div class="d-flex flex-column align-items-center gap-2">
+              <!-- View Profile Button (for all users) -->
+              <a href="userProfile.php?id=<?= $user['_id'] ?>" class="btn btn-sm btn-primary">
+                <i class="fas fa-eye me-1"></i>View Profile
+              </a>
+              
+              <?php if ($user['email'] !== $myEmail): ?>
                 <?php if ($_SESSION['user']['role'] === 'admin'): ?>
                   <!-- Role Promotion/Demotion -->
                   <?php if ($role === 'admin'): ?>
@@ -122,10 +127,10 @@ $myEmail = $_SESSION['user']['email'];
                   <a href="userOperations.php?action=delete&id=<?= $user['_id'] ?>" class="btn btn-sm btn-outline-danger"
                     onclick="return confirm('Are you sure you want to delete this user?');">🗑️ Delete</a>
                 <?php endif; ?>
-              </div>
-            <?php else: ?>
-              <em>(you)</em>
-            <?php endif; ?>
+              <?php else: ?>
+                <em class="text-muted">(you)</em>
+              <?php endif; ?>
+            </div>
           </td>
         </tr>
       <?php endforeach; ?>

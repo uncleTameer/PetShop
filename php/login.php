@@ -1,10 +1,6 @@
 <?php
 require 'dbConnect.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 // Always clean leftover messages
 unset($_SESSION['success_message']);
 unset($_SESSION['error_message']);

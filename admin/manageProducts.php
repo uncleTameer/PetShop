@@ -1,8 +1,5 @@
 <?php
 require_once '../php/dbConnect.php';
-if (session_status() === PHP_SESSION_NONE) {
-  session_start();
-}
 
 use MongoDB\BSON\ObjectId;
 
@@ -40,10 +37,32 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     exit;
 }
 
+// Handle low stock threshold update
+if (isset($_POST['updateThreshold']) && isset($_POST['threshold'])) {
+    $threshold = (int)$_POST['threshold'];
+    if ($threshold > 0) {
+        // Update all products with the new threshold
+        $db->products->updateMany(
+            [],
+            ['$set' => ['lowStockThreshold' => $threshold]]
+        );
+        $_SESSION['success_message'] = "✅ Low stock threshold updated to {$threshold} items.";
+        header("Location: manageProducts.php");
+        exit;
+    }
+}
+
+// Get current threshold (default to 5 if not set)
+$currentThreshold = 5;
+$thresholdDoc = $db->products->findOne(['lowStockThreshold' => ['$exists' => true]]);
+if ($thresholdDoc && isset($thresholdDoc['lowStockThreshold'])) {
+    $currentThreshold = $thresholdDoc['lowStockThreshold'];
+}
+
 $filter = [];
 
 if (isset($_GET['lowStock']) && $_GET['lowStock'] == 1) {
-    $filter = ['stock' => ['$lt' => 5]];
+    $filter = ['stock' => ['$lt' => $currentThreshold]];
 }
 
 $products = $db->products->find($filter);
@@ -54,6 +73,7 @@ $products = $db->products->find($filter);
   <meta charset="UTF-8">
   <title>Manage Products</title>
   <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/western-theme.css">
   <script src="../js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
@@ -87,10 +107,23 @@ $products = $db->products->find($filter);
   <?php unset($_SESSION['error_message']); ?>
 <?php endif; ?>
 
-  <a href="manageProducts.php?lowStock=1" class="btn btn-outline-danger mb-3">🔻 View Low Stock</a>
-  <a href="manageProducts.php" class="btn btn-outline-secondary mb-3">🔁 View All</a>
-
-  <a href="addProduct.php" class="btn btn-success mb-3">➕ Add New Product</a>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <a href="manageProducts.php?lowStock=1" class="btn btn-outline-danger mb-2">🔻 View Low Stock</a>
+      <a href="manageProducts.php" class="btn btn-outline-secondary mb-2">🔁 View All</a>
+      <a href="addProduct.php" class="btn btn-success mb-2">➕ Add New Product</a>
+    </div>
+    <div class="col-md-6">
+      <form method="POST" class="d-flex gap-2 align-items-end">
+        <div class="flex-grow-1">
+          <label for="threshold" class="form-label">Low Stock Threshold:</label>
+          <input type="number" id="threshold" name="threshold" value="<?= $currentThreshold ?>" 
+                 min="1" max="100" class="form-control" required>
+        </div>
+        <button type="submit" name="updateThreshold" class="btn btn-warning">📊 Update Threshold</button>
+      </form>
+    </div>
+  </div>
 
   <table class="table table-bordered table-striped text-center align-middle">
     <thead class="table-dark">
@@ -105,7 +138,7 @@ $products = $db->products->find($filter);
     </thead>
     <tbody>
       <?php foreach ($products as $product): ?>
-        <tr class="<?= $product['stock'] < 5 ? 'table-warning' : '' ?>">
+        <tr class="<?= $product['stock'] < $currentThreshold ? 'table-warning' : '' ?>">
           <td><?= htmlspecialchars($product['name']) ?></td>
           <td><?= number_format($product['price'], 2) ?></td>
           <td>

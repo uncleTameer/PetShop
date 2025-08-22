@@ -1,0 +1,581 @@
+/* Western Country-Side Theme for PetShop */
+/* Warm earth tones, rustic elements, and western-inspired styling */
+
+/* Import Wild West Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&family=Cinzel:wght@400;500;600;700;800;900&display=swap");
+
+:root {
+  /* Western Color Palette */
+  --saddle-brown: #8b4513;
+  --leather-brown: #a0522d;
+  --warm-tan: #d2b48c;
+  --cream: #f5f5dc;
+  --rustic-red: #cd5c5c;
+  --sage-green: #9caf88;
+  --dusty-blue: #87ceeb;
+  --golden-yellow: #daa520;
+  --charcoal: #36454f;
+  --warm-white: #fdf5e6;
+
+  /* Typography */
+  --western-font: "Crimson Text", "Georgia", "Times New Roman", serif;
+  --heading-font: "Playfair Display", "Palatino", "Georgia", serif;
+  --accent-font: "Cinzel", "Times New Roman", serif;
+}
+
+/* Global Styles */
+body {
+  background: linear-gradient(135deg, var(--warm-white) 0%, var(--cream) 100%);
+  font-family: var(--western-font);
+  color: var(--charcoal);
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* Enhanced Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--heading-font);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 1px 2px rgba(139, 69, 19, 0.1);
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.display-4 {
+  font-family: var(--accent-font);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Western Header Styling */
+.navbar-dark {
+  background: linear-gradient(
+    90deg,
+    var(--saddle-brown) 0%,
+    var(--leather-brown) 100%
+  ) !important;
+  border-bottom: 3px solid var(--golden-yellow);
+  box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+}
+
+.navbar-brand {
+  font-family: var(--accent-font);
+  font-weight: 700;
+  font-size: 1.8rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+}
+
+/* Western Button Styling */
+.btn {
+  border-radius: 25px;
+  font-family: var(--accent-font);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  font-size: 0.9rem;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, var(--dusty-blue), #5f9ea0);
+  border-color: var(--dusty-blue);
+  color: white;
+}
+
+.btn-success {
+  background: linear-gradient(45deg, var(--sage-green), #6b8e23);
+  border-color: var(--sage-green);
+  color: white;
+}
+
+.btn-warning {
+  background: linear-gradient(45deg, var(--golden-yellow), #b8860b);
+  border-color: var(--golden-yellow);
+  color: white;
+}
+
+.btn-danger {
+  background: linear-gradient(45deg, var(--rustic-red), #8b0000);
+  border-color: var(--rustic-red);
+  color: white;
+}
+
+.btn-info {
+  background: linear-gradient(45deg, var(--dusty-blue), #4682b4);
+  border-color: var(--dusty-blue);
+  color: white;
+}
+
+.btn-outline-light {
+  border-color: var(--warm-tan);
+  color: var(--warm-tan);
+}
+
+.btn-outline-light:hover {
+  background: var(--warm-tan);
+  color: var(--charcoal);
+}
+
+/* Western Card Styling */
+.card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(139, 69, 19, 0.15);
+  background: var(--warm-white);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(139, 69, 19, 0.25);
+}
+
+.card-header {
+  border-radius: 15px 15px 0 0 !important;
+  font-family: var(--accent-font);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-size: 0.95rem;
+}
+
+/* Western Table Styling */
+.table {
+  background: var(--warm-white);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table thead th {
+  background: linear-gradient(45deg, var(--saddle-brown), var(--leather-brown));
+  color: var(--warm-white);
+  border: none;
+  font-family: var(--accent-font);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+}
+
+.table tbody tr:hover {
+  background: var(--cream);
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+
+/* Western Form Styling */
+.form-control {
+  border: 2px solid var(--warm-tan);
+  border-radius: 10px;
+  background: var(--warm-white);
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--golden-yellow);
+  box-shadow: 0 0 0 0.2rem rgba(218, 165, 32, 0.25);
+  background: white;
+}
+
+.form-label {
+  font-family: var(--accent-font);
+  font-weight: 600;
+  color: var(--saddle-brown);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+}
+
+/* Western Alert Styling */
+.alert {
+  border: none;
+  border-radius: 10px;
+  border-left: 5px solid;
+  font-weight: 600;
+}
+
+.alert-success {
+  background: linear-gradient(45deg, var(--sage-green), #90ee90);
+  border-left-color: var(--sage-green);
+  color: white;
+}
+
+.alert-danger {
+  background: linear-gradient(45deg, var(--rustic-red), #ffb6c1);
+  border-left-color: var(--rustic-red);
+  color: white;
+}
+
+.alert-warning {
+  background: linear-gradient(45deg, var(--golden-yellow), #f0e68c);
+  border-left-color: var(--golden-yellow);
+  color: var(--charcoal);
+}
+
+.alert-info {
+  background: linear-gradient(45deg, var(--dusty-blue), #e0f6ff);
+  border-left-color: var(--dusty-blue);
+  color: var(--charcoal);
+}
+
+/* Western Badge Styling */
+.badge {
+  border-radius: 15px;
+  font-family: var(--accent-font);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+}
+
+/* Western Profile Header */
+.profile-header {
+  background: linear-gradient(
+    135deg,
+    var(--saddle-brown) 0%,
+    var(--leather-brown) 50%,
+    var(--warm-tan) 100%
+  );
+  color: var(--warm-white);
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 10px 30px rgba(139, 69, 19, 0.3);
+}
+
+/* Western Stat Cards */
+.stat-card {
+  background: var(--warm-white);
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 8px 25px rgba(139, 69, 19, 0.15);
+  margin-bottom: 1.5rem;
+  border: 2px solid var(--warm-tan);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(139, 69, 19, 0.25);
+  border-color: var(--golden-yellow);
+}
+
+/* Western Section Titles */
+.section-title {
+  color: var(--saddle-brown);
+  border-bottom: 3px solid var(--golden-yellow);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--accent-font);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-size: 1.1rem;
+}
+
+/* Western Activity Items */
+.activity-item {
+  border-left: 4px solid var(--golden-yellow);
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--cream);
+  padding: 1rem;
+  border-radius: 0 10px 10px 0;
+  transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+  background: var(--warm-tan);
+  transform: translateX(5px);
+}
+
+/* Western Navigation */
+.navbar-nav .nav-link {
+  color: var(--warm-tan) !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--golden-yellow) !important;
+  transform: translateY(-2px);
+}
+
+/* Western Footer */
+.footer {
+  background: linear-gradient(90deg, var(--charcoal), var(--saddle-brown));
+  color: var(--warm-white);
+  padding: 2rem 0;
+  margin-top: 3rem;
+}
+
+/* Western Hero Section */
+.hero-section {
+  background: linear-gradient(rgba(139, 69, 19, 0.7), rgba(160, 82, 45, 0.7)),
+    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23D2B48C" opacity="0.3"/><circle cx="75" cy="75" r="1" fill="%23D2B48C" opacity="0.3"/><circle cx="50" cy="10" r="0.5" fill="%23D2B48C" opacity="0.2"/><circle cx="10" cy="60" r="0.5" fill="%23D2B48C" opacity="0.2"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  padding: 4rem 0;
+  text-align: center;
+  color: var(--warm-white);
+}
+
+.hero-section h1 {
+  font-family: var(--accent-font);
+  font-size: 4rem;
+  font-weight: 800;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+  margin-bottom: 1rem;
+  letter-spacing: 2px;
+}
+
+.hero-section p {
+  font-family: var(--heading-font);
+  font-size: 1.4rem;
+  font-weight: 500;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
+}
+
+/* Western Product Cards */
+.product-card {
+  background: var(--warm-white);
+  border: 2px solid var(--warm-tan);
+  border-radius: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(139, 69, 19, 0.1);
+}
+
+.product-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(139, 69, 19, 0.25);
+  border-color: var(--golden-yellow);
+}
+
+.product-card img {
+  transition: all 0.3s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Western Search Bar */
+.search-container {
+  background: var(--cream);
+  padding: 2rem;
+  border-radius: 15px;
+  border: 2px solid var(--warm-tan);
+  margin: 2rem 0;
+}
+
+/* Western Pagination */
+.pagination .page-link {
+  color: var(--saddle-brown);
+  border: 2px solid var(--warm-tan);
+  margin: 0 2px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+  background: var(--golden-yellow);
+  border-color: var(--golden-yellow);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.pagination .page-item.active .page-link {
+  background: var(--saddle-brown);
+  border-color: var(--saddle-brown);
+}
+
+/* Western Modal Styling */
+.modal-content {
+  border: none;
+  border-radius: 15px;
+  background: var(--warm-white);
+}
+
+.modal-header {
+  background: linear-gradient(45deg, var(--saddle-brown), var(--leather-brown));
+  color: var(--warm-white);
+  border-radius: 15px 15px 0 0;
+}
+
+.modal-footer {
+  border-top: 2px solid var(--warm-tan);
+}
+
+/* Western Loading Spinner */
+.spinner-border {
+  color: var(--golden-yellow);
+}
+
+/* Western Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--warm-tan);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--leather-brown);
+}
+
+/* Western Responsive Design */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero-section p {
+    font-size: 1.1rem;
+  }
+
+  .stat-card {
+    padding: 1.5rem;
+  }
+}
+
+/* Western Animation Classes */
+.fade-in {
+  animation: fadeIn 0.8s ease-in;
+}
+
+.slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Western Decorative Elements */
+.western-border {
+  border: 3px solid var(--golden-yellow);
+  border-radius: 15px;
+  position: relative;
+}
+
+.western-border::before {
+  content: "★";
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--warm-white);
+  color: var(--golden-yellow);
+  font-size: 1.5rem;
+  padding: 0 10px;
+}
+
+/* Western Success/Error Messages */
+.success-message {
+  background: linear-gradient(45deg, var(--sage-green), #90ee90);
+  color: white;
+  border: 2px solid var(--sage-green);
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+.error-message {
+  background: linear-gradient(45deg, var(--rustic-red), #ffb6c1);
+  color: white;
+  border: 2px solid var(--rustic-red);
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Western Typography Utilities */
+.western-title {
+  font-family: var(--accent-font);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--saddle-brown);
+  text-shadow: 2px 2px 4px rgba(139, 69, 19, 0.1);
+}
+
+.western-subtitle {
+  font-family: var(--heading-font);
+  font-weight: 600;
+  font-style: italic;
+  color: var(--leather-brown);
+  letter-spacing: 0.5px;
+}
+
+.western-accent {
+  font-family: var(--accent-font);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--golden-yellow);
+}
+
+.western-quote {
+  font-family: var(--western-font);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--charcoal);
+  border-left: 4px solid var(--golden-yellow);
+  padding-left: 1rem;
+  margin: 1rem 0;
+}

@@ -1,5 +1,4 @@
 <?php
-session_start();
 require __DIR__ . '/dbConnect.php';
 
 use MongoDB\BSON\ObjectId;
@@ -40,21 +39,14 @@ $recommendation = "🎯 Check out our latest horse saddles!";
   <title>Horse & Camel</title>
   <!-- Asset paths adjusted: this file lives in /php so go up one level -->
   <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/western-theme.css">
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/bootstrap.bundle.min.js" defer></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 </head>
 <body>
 
-<!-- Flash Messages -->
-<?php foreach (['logout_message', 'success_message'] as $msgType): ?>
-  <?php if (isset($_SESSION[$msgType])): ?>
-    <div class="alert alert-<?= $msgType === 'success_message' ? 'success' : 'info' ?> text-center m-3 flash-message">
-      <?= $_SESSION[$msgType] ?>
-    </div>
-    <?php unset($_SESSION[$msgType]); ?>
-  <?php endif; ?>
-<?php endforeach; ?>
+
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
@@ -85,6 +77,24 @@ $recommendation = "🎯 Check out our latest horse saddles!";
   </div>
 </nav>
 
+<!-- Western Hero Section -->
+<div class="hero-section">
+  <div class="container">
+      <h1 class="western-title animate__animated animate__fadeInDown">🐴 Horse & Camel Shop 🐫</h1>
+  <p class="western-subtitle animate__animated animate__fadeInUp">Where the Wild West Meets Pet Care Excellence</p>
+    <div class="mt-4">
+      <a href="shop.php" class="btn btn-warning btn-lg me-3 animate__animated animate__fadeInUp animate__delay-1s">
+        🛒 Shop Now
+      </a>
+      <?php if (!isset($_SESSION['user'])): ?>
+        <a href="register.php" class="btn btn-outline-light btn-lg animate__animated animate__fadeInUp animate__delay-2s">
+          🤠 Join the Ranch
+        </a>
+      <?php endif; ?>
+    </div>
+  </div>
+</div>
+
 <!-- Main Container -->
 <div class="container mt-5 text-center">
 
@@ -93,12 +103,9 @@ $recommendation = "🎯 Check out our latest horse saddles!";
     👋 <?= isset($_SESSION['user']) ? 'Welcome back, ' . htmlspecialchars($_SESSION['user']['name']) . '!' : 'Welcome to Horse & Camel Shop!' ?>
   </div>
 
-  <h1 class="display-4 mb-3">Horse & Camel Shop</h1>
-  <p class="lead mb-5">Find the best products for your pets 🐴🐫🐶🐱</p>
-
   <!-- Video Section -->
   <div class="mt-5 mb-4">
-    <h3 class="mb-4">🎬 Featured Video</h3>
+    <h3 class="western-title mb-4">🎬 Featured Video</h3>
     <div class="row justify-content-center">
       <div class="col-lg-8">
         <div class="ratio ratio-16x9">
@@ -121,7 +128,7 @@ $recommendation = "🎯 Check out our latest horse saddles!";
 
   <!-- Featured Products Today -->
   <div class="mt-5">
-    <h3 class="mb-4">🌟 Featured Products Today</h3>
+    <h3 class="western-title mb-4">🌟 Featured Products Today</h3>
     <div class="row justify-content-center g-4">
       <?php foreach ($featuredProducts as $product): ?>
         <div class="col-md-4">
