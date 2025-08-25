@@ -1,4 +1,5 @@
-[{
+[
+  {
     "_id": {
       "$oid": "67ffd0a3282a600674ca5e8d"
     },
@@ -27,4 +28,5 @@
     "image": "uploads/dogfood.jpg",
     "category": "Dogs",
     "stock": 15
-  }]
+  }
+]

@@ -28,32 +28,24 @@ $profileFile = !empty($user['profilePicture']) && file_exists("uploads/" . $user
   <meta charset="UTF-8">
   <title>Edit Profile - Horse & Camel</title>
   <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/western-theme.css">
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
   <script src="../js/bootstrap.bundle.min.js" defer></script>
-  <style>
-    body {
-      background: #f8f9fa;
-    }
-    .profile-form {
-      max-width: 700px;
-      margin: 40px auto;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      padding: 30px;
-    }
-    .form-section:not(:last-child) {
-      border-bottom: 1px solid #dee2e6;
-      margin-bottom: 25px;
-      padding-bottom: 20px;
-    }
-  </style>
 </head>
 <body>
 
+<!-- Western Hero Section -->
+<div class="hero-section mb-4">
+  <div class="container text-center">
+    <h1 class="western-title animate__animated animate__fadeInDown">👤 Edit Your Profile</h1>
+    <p class="western-subtitle animate__animated animate__fadeInUp">Update your information, partner!</p>
+  </div>
+</div>
+
 <div class="container">
-  <form class="profile-form" method="POST" action="updateProfile.php" enctype="multipart/form-data">
-    <h3 class="text-center mb-4">👤 Edit Your Profile</h3>
+  <form class="stat-card" method="POST" action="updateProfile.php" enctype="multipart/form-data">
+    <h3 class="western-title text-center mb-4">👤 Edit Your Profile</h3>
 
     <?php if (isset($_SESSION['success_message'])): ?>
       <div class="alert alert-success text-center"><?= $_SESSION['success_message'] ?></div>
@@ -66,8 +58,8 @@ $profileFile = !empty($user['profilePicture']) && file_exists("uploads/" . $user
     <?php endif; ?>
 
     <!-- Personal Info Section -->
-    <div class="form-section">
-      <h5>📇 Personal Information</h5>
+    <div class="stat-card mb-4">
+      <h5 class="section-title">📇 Personal Information</h5>
       <div class="row g-3">
         <div class="col-md-6">
           <label class="form-label">First Name</label>
@@ -106,8 +98,8 @@ $profileFile = !empty($user['profilePicture']) && file_exists("uploads/" . $user
     </div>
 
     <!-- Profile Picture Upload -->
-    <div class="form-section">
-      <h5>🖼️ Profile Picture</h5>
+    <div class="stat-card mb-4">
+      <h5 class="section-title">🖼️ Profile Picture</h5>
       <div class="mb-2">
   <img src="../uploads/<?= $profileFile ?>" alt="Profile" class="img-thumbnail" style="height: 100px;">
       </div>
@@ -115,23 +107,23 @@ $profileFile = !empty($user['profilePicture']) && file_exists("uploads/" . $user
     </div>
 
     <!-- Password Change -->
-    <div class="form-section">
-      <h5>🔒 Change Password</h5>
+    <div class="stat-card mb-4">
+      <h5 class="section-title">🔒 Change Password</h5>
       <input type="password" name="newPassword" class="form-control mb-2" placeholder="New password (leave blank to keep current)">
       <input type="password" name="confirmPassword" class="form-control" placeholder="Confirm new password">
     </div>
 
     <!-- Account Info -->
-    <div class="form-section">
-      <h5>📅 Account Created On</h5>
+    <div class="stat-card mb-4">
+      <h5 class="section-title">📅 Account Created On</h5>
       <p class="text-muted">
         <?= isset($user['createdAt']) ? date('F j, Y - H:i', $user['createdAt']->toDateTime()->getTimestamp()) : 'Not available' ?>
       </p>
     </div>
 
     <!-- Delete Account -->
-    <div class="form-section text-center">
-      <h5 class="text-danger">⚠️ Danger Zone</h5>
+    <div class="stat-card mb-4 text-center">
+      <h5 class="section-title text-danger">⚠️ Danger Zone</h5>
       <button type="button" class="btn btn-outline-danger" onclick="confirmDelete()">🗑️ Delete My Account</button>
     </div>
 

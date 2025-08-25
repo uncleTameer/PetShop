@@ -66,7 +66,7 @@ $productStats = $db->orders->aggregate($pipeline)->toArray();
         <div class="card text-white bg-primary shadow-sm">
           <div class="card-body text-center">
             <h4><?= $productCount ?></h4>
-            <p class="card-text">Total Products</p>
+            <p class="card-text">inventory management</p>
           </div>
         </div>
       </a>
@@ -78,7 +78,7 @@ $productStats = $db->orders->aggregate($pipeline)->toArray();
         <div class="card text-white bg-success shadow-sm">
           <div class="card-body text-center">
             <h4><?= $userCount ?></h4>
-            <p class="card-text">Registered Users</p>
+            <p class="card-text">Registered Users management</p>
           </div>
         </div>
       </a>
@@ -90,19 +90,7 @@ $productStats = $db->orders->aggregate($pipeline)->toArray();
         <div class="card text-white bg-info shadow-sm">
           <div class="card-body text-center">
             <h4><?= $orderCount ?></h4>
-            <p class="card-text">Total Orders</p>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <!-- Low Stock -->
-    <div class="col-md-3">
-      <a href="manageProducts.php?lowStock=1" class="text-decoration-none">
-        <div class="card text-white bg-danger shadow-sm">
-          <div class="card-body text-center">
-            <h4><?= $lowStockCount ?></h4>
-            <p class="card-text">Low Stock Items</p>
+            <p class="card-text">order management</p>
           </div>
         </div>
       </a>
@@ -121,17 +109,58 @@ $productStats = $db->orders->aggregate($pipeline)->toArray();
     </div>
   </div>
 
-  <div class="text-center mt-5">
-    <div class="d-flex justify-content-center gap-3 flex-wrap">
-      <a href="orderReport.php" class="btn btn-outline-primary btn-lg">📊 View Full Order Report</a>
-      <a href="notifications.php" class="btn btn-outline-warning btn-lg">
-        🔔 System Notifications
-        <?php if ($unreadNotifications > 0): ?>
-          <span class="badge bg-danger ms-2"><?= $unreadNotifications ?></span>
-        <?php endif; ?>
+  <div class="row g-4 mt-5">
+    <!-- Order Report -->
+    <div class="col-md-3">
+      <a href="orderReport.php" class="text-decoration-none">
+        <div class="card text-white bg-primary shadow-sm">
+          <div class="card-body text-center">
+            <h4>📊</h4>
+            <p class="card-text">View Full Order Report</p>
+          </div>
+        </div>
       </a>
-      <a href="manageCategories.php" class="btn btn-outline-success btn-lg">📂 Manage Categories</a>
-      <a href="createAccount.php" class="btn btn-outline-info btn-lg">👤 Create Account</a>
+    </div>
+
+    <!-- System Notifications -->
+    <div class="col-md-3">
+      <a href="notifications.php" class="text-decoration-none">
+        <div class="card text-white bg-warning shadow-sm">
+          <div class="card-body text-center">
+            <h4>🔔</h4>
+            <p class="card-text">
+              System Notifications
+              <?php if ($unreadNotifications > 0): ?>
+                <span class="badge bg-danger ms-2"><?= $unreadNotifications ?></span>
+              <?php endif; ?>
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Manage Categories -->
+    <div class="col-md-3">
+      <a href="manageCategories.php" class="text-decoration-none">
+        <div class="card text-white bg-success shadow-sm">
+          <div class="card-body text-center">
+            <h4>📂</h4>
+            <p class="card-text">Manage Categories</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Create Account -->
+    <div class="col-md-3">
+      <a href="createAccount.php" class="text-decoration-none">
+        <div class="card text-white bg-info shadow-sm">
+          <div class="card-body text-center">
+            <h4>👤</h4>
+            <p class="card-text">Create Account</p>
+          </div>
+        </div>
+      </a>
     </div>
   </div>
 

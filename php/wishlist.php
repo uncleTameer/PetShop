@@ -79,9 +79,11 @@ $wishlistItems = $db->wishlist->aggregate([
     <meta charset="UTF-8">
     <title>My Wishlist - Pet Shop</title>
     <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/western-theme.css">
     <link rel="stylesheet" href="../css/style.css">
     <script src="../js/bootstrap.bundle.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 </head>
 <body>
 
@@ -126,24 +128,34 @@ $wishlistItems = $db->wishlist->aggregate([
     <?php unset($_SESSION['success_message']); ?>
 <?php endif; ?>
 
+<!-- Western Hero Section -->
+<div class="hero-section mb-4">
+    <div class="container text-center">
+        <h1 class="western-title animate__animated animate__fadeInDown">❤️ Wishlist Corral</h1>
+        <p class="western-subtitle animate__animated animate__fadeInUp">Your favorite products, gathered like prized horses</p>
+    </div>
+</div>
+
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>❤️ My Wishlist</h1>
-        <a href="shop.php" class="btn btn-outline-primary">🛒 Continue Shopping</a>
+        <h2 class="western-title">❤️ My Wishlist</h2>
+        <a href="shop.php" class="btn btn-warning">🛒 Continue Shopping</a>
     </div>
 
     <?php if (empty($wishlistItems)): ?>
         <div class="text-center py-5">
-            <i class="fas fa-heart text-muted" style="font-size: 4rem;"></i>
-            <h3 class="mt-3 text-muted">Your wishlist is empty</h3>
-            <p class="text-muted">Start adding products you love to your wishlist!</p>
-            <a href="shop.php" class="btn btn-primary">Browse Products</a>
+            <div class="western-border p-5">
+                <i class="fas fa-heart text-muted" style="font-size: 4rem; color: var(--rustic-red);"></i>
+                <h3 class="western-title mt-3">Your wishlist corral is empty</h3>
+                <p class="western-subtitle">Start gathering products you love, partner!</p>
+                <a href="shop.php" class="btn btn-warning btn-lg">🌵 Browse Products</a>
+            </div>
         </div>
     <?php else: ?>
         <div class="row">
             <?php foreach ($wishlistItems as $item): ?>
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100">
+                    <div class="card product-card h-100">
                         <a href="product.php?id=<?= $item['product']['_id'] ?>" class="text-decoration-none">
                             <img src="<?= htmlspecialchars($item['product']['image']) ?>" 
                                  class="card-img-top" 
@@ -151,33 +163,33 @@ $wishlistItems = $db->wishlist->aggregate([
                                  style="height: 200px; object-fit: cover;">
                         </a>
                         <div class="card-body">
-                            <h5 class="card-title">
+                            <h5 class="card-title western-subtitle">
                                 <a href="product.php?id=<?= $item['product']['_id'] ?>" 
                                    class="text-decoration-none text-dark">
                                     <?= htmlspecialchars($item['product']['name']) ?>
                                 </a>
                             </h5>
-                            <p class="card-text text-success fw-bold">
+                            <p class="card-text western-accent fs-4 fw-bold">
                                 ₪<?= number_format($item['product']['price'], 2) ?>
                             </p>
                             <p class="card-text">
                                 <small class="text-muted">
-                                    Stock: <?= $item['product']['stock'] ?> available
+                                    📦 Stock: <?= $item['product']['stock'] ?> available
                                 </small>
                             </p>
                             
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 flex-wrap">
                                 <?php if ($item['product']['stock'] > 0): ?>
-                                                                         <form method="POST" action="addToCart.php" class="flex-fill">
-                                         <input type="hidden" name="name" value="<?= $item['product']['name'] ?>">
-                                         <input type="hidden" name="redirect" value="wishlist.php">
-                                         <button type="submit" class="btn btn-primary w-100">🛒 Add to Cart</button>
-                                     </form>
+                                    <form method="POST" action="addToCart.php" class="flex-fill mb-2">
+                                        <input type="hidden" name="name" value="<?= $item['product']['name'] ?>">
+                                        <input type="hidden" name="redirect" value="wishlist.php">
+                                        <button type="submit" class="btn btn-success w-100">🛒 Add to Cart</button>
+                                    </form>
                                 <?php else: ?>
-                                    <button class="btn btn-secondary w-100" disabled>❌ Out of Stock</button>
+                                    <button class="btn btn-secondary w-100 mb-2" disabled>❌ Out of Stock</button>
                                 <?php endif; ?>
                                 
-                                <form method="POST" class="flex-fill">
+                                <form method="POST" class="flex-fill mb-2">
                                     <input type="hidden" name="productId" value="<?= $item['product']['_id'] ?>">
                                     <button type="submit" name="remove_from_wishlist" 
                                             class="btn btn-outline-danger w-100" 

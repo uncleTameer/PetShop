@@ -48,13 +48,18 @@ $weeklyData = [];
 $weeklyOrders = [];
 
 foreach ($weeklyProfits as $week) {
-    $weeklyLabels[] = 'Week ' . $week->_id;
-    $weeklyData[] = round($week->weeklyProfit, 2);
-    $weeklyOrders[] = $week->orderCount;
+    if (isset($week->_id)) {
+        $weeklyLabels[] = 'Week ' . $week->_id;
+        $weeklyData[] = round($week->weeklyProfit, 2);
+        $weeklyOrders[] = $week->orderCount;
+    }
 }
 
 // Customer Lifetime Value Analysis
 $clvPipeline = [
+    ['$match' => [
+        'userId' => ['$exists' => true, '$ne' => null]
+    ]],
     ['$group' => [
         '_id' => '$userId',
         'totalSpent' => ['$sum' => '$total'],
@@ -102,10 +107,12 @@ $seasonalOrderCounts = [];
 $seasonalRevenue = [];
 
 foreach ($seasonalData as $data) {
-    $monthName = $monthNames[$data->_id->month - 1] . ' ' . $data->_id->year;
-    $seasonalLabels[] = $monthName;
-    $seasonalOrderCounts[] = $data->orderCount;
-    $seasonalRevenue[] = round($data->totalRevenue, 2);
+    if (isset($data->_id) && isset($data->_id->month) && isset($data->_id->year)) {
+        $monthName = $monthNames[$data->_id->month - 1] . ' ' . $data->_id->year;
+        $seasonalLabels[] = $monthName;
+        $seasonalOrderCounts[] = $data->orderCount;
+        $seasonalRevenue[] = round($data->totalRevenue, 2);
+    }
 }
 
 // Get most and least ordered products for lists
@@ -302,7 +309,7 @@ $leastOrdered = array_slice(array_reverse($orderStats), 0, 5);
               <tr>
                 <td>
                   <a href="userProfile.php?id=<?= $customer->_id ?>" class="text-decoration-none">
-                    <?= substr($customer->_id, 0, 8) ?>...
+                    <?= isset($customer->_id) && is_string($customer->_id) ? substr($customer->_id, 0, 8) . '...' : (string)$customer->_id ?>
                   </a>
                 </td>
                 <td class="text-success fw-bold">₪<?= number_format($customer->totalSpent, 2) ?></td>

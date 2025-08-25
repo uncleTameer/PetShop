@@ -61,7 +61,9 @@ $categories = $db->categories->find([], ['sort' => ['name' => 1]]);
     <meta charset="UTF-8">
     <title>Manage Categories - Admin</title>
     <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/western-theme.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <script src="../js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
@@ -74,10 +76,18 @@ $categories = $db->categories->find([], ['sort' => ['name' => 1]]);
     </div>
 </nav>
 
+<!-- Western Hero Section -->
+<div class="hero-section mb-4">
+    <div class="container text-center">
+        <h1 class="western-title animate__animated animate__fadeInDown">🌵 Manage Categories</h1>
+        <p class="western-subtitle animate__animated animate__fadeInUp">Organize your product catalog, partner!</p>
+    </div>
+</div>
+
 <div class="container py-4">
     <div class="row">
         <div class="col-md-4">
-            <div class="card">
+            <div class="card product-card">
                 <div class="card-header">
                     <h5 class="mb-0">➕ Add New Category</h5>
                 </div>

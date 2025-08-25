@@ -10,8 +10,10 @@ $total = 0;
   <meta charset="UTF-8">
   <title>Your Cart</title>
   <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/western-theme.css">
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
   <script src="../js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
@@ -40,22 +42,37 @@ $total = 0;
   </div>
 </nav>
 
+<!-- Western Hero Section -->
+<div class="hero-section mb-4">
+  <div class="container text-center">
+    <h1 class="western-title animate__animated animate__fadeInDown">🛒 Shopping Cart</h1>
+    <p class="western-subtitle animate__animated animate__fadeInUp">Your items are gathered like precious cargo, partner!</p>
+  </div>
+</div>
+
 <div class="container py-4">
-  <h2 class="mb-4">🛒 Your Cart</h2>
+  <h2 class="western-title mb-4">🛒 Your Cart</h2>
 
   <?php if (empty($cart)): ?>
-    <div class="alert alert-info text-center">Your cart is empty.</div>
+    <div class="western-border p-5 text-center">
+      <i class="fas fa-shopping-cart text-muted" style="font-size: 4rem; color: var(--rustic-red);"></i>
+      <h3 class="western-title mt-3">Your cart corral is empty</h3>
+      <p class="western-subtitle">Time to gather some products, partner!</p>
+      <a href="shop.php" class="btn btn-warning btn-lg">🌵 Browse Products</a>
+    </div>
   <?php else: ?>
-      <table class="table table-bordered text-center align-middle">
-        <thead class="table-dark">
-          <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Subtotal</th>
-            <th>Action</th>
-          </tr>
-        </thead>
+      <div class="card product-card">
+        <div class="card-body">
+          <table class="table table-bordered text-center align-middle">
+            <thead class="table-dark">
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+                <th>Action</th>
+              </tr>
+            </thead>
         <tbody>
           <?php foreach ($cart as $id => $item): 
             $subtotal = $item['price'] * $item['quantity'];
@@ -83,11 +100,13 @@ $total = 0;
             <th>₪<?= number_format($total, 2) ?></th>
             <th></th>
           </tr>
-        </tfoot>
-      </table>
+            </tfoot>
+          </table>
+        </div>
+      </div>
       
       <!-- Update Cart Form -->
-      <form method="POST" action="updateCart.php">
+      <form method="POST" action="updateCart.php" class="mt-3">
         <?php foreach ($cart as $id => $item): ?>
           <input type="hidden" name="quantities[<?= $id ?>]" value="<?= $item['quantity'] ?>" id="qty_<?= $id ?>">
         <?php endforeach; ?>
@@ -98,21 +117,21 @@ $total = 0;
 
 
     <?php if (!isset($_SESSION['user'])): ?>
-  <div class="alert alert-info text-center mt-4">
-    <h5>🛒 Guest Checkout</h5>
-    <p>You can place your order as a guest, or <a href="login.php" class="alert-link">log in</a> to save your information for faster checkout.</p>
-    <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#checkoutModal">
-      💳 Proceed to Checkout - ₪<?= number_format($total, 2) ?>
-    </button>
-  </div>
-<?php else: ?>
-  <h4>🧾 Checkout</h4>
-  <div class="text-center">
-    <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#checkoutModal">
-      💳 Proceed to Checkout - ₪<?= number_format($total, 2) ?>
-    </button>
-  </div>
-<?php endif; ?>
+      <div class="stat-card text-center mt-4">
+        <h5 class="section-title">🛒 Guest Checkout</h5>
+        <p class="western-subtitle">You can place your order as a guest, or <a href="login.php" class="alert-link">log in</a> to save your information for faster checkout.</p>
+        <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+          💳 Proceed to Checkout - ₪<?= number_format($total, 2) ?>
+        </button>
+      </div>
+    <?php else: ?>
+      <div class="stat-card text-center mt-4">
+        <h4 class="section-title">🧾 Checkout</h4>
+        <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+          💳 Proceed to Checkout - ₪<?= number_format($total, 2) ?>
+        </button>
+      </div>
+    <?php endif; ?>
 
   <?php endif; ?>
 </div>
@@ -128,7 +147,7 @@ $total = 0;
       <div class="modal-body">
         <div class="row">
           <div class="col-md-8">
-            <h6 class="mb-3">Order Summary</h6>
+            <h6 class="section-title mb-3">Order Summary</h6>
             <div class="table-responsive">
               <table class="table table-sm">
                 <tbody>
@@ -152,10 +171,10 @@ $total = 0;
             
             <hr>
             
-            <h6 class="mb-3">Payment Information</h6>
+            <h6 class="section-title mb-3">Payment Information</h6>
             <form id="checkoutForm" method="POST" action="submitOrder.php">
               <!-- Fulfillment Method -->
-              <h6 class="mb-3">Fulfillment Method</h6>
+              <h6 class="section-title mb-3">Fulfillment Method</h6>
               <div class="row mb-4">
                 <div class="col-12">
                   <div class="form-check form-check-inline">
@@ -173,7 +192,7 @@ $total = 0;
               </div>
               <?php if (!isset($_SESSION['user'])): ?>
               <!-- Guest Information (always collected; could be simplified for pickup) -->
-              <h6 class="mb-3">Customer Information</h6>
+              <h6 class="section-title mb-3">Customer Information</h6>
               <div class="row g-3 mb-4">
                 <div class="col-12">
                   <label for="guestName" class="form-label">Full Name</label>
@@ -199,7 +218,7 @@ $total = 0;
               <hr>
               <?php endif; ?>
               
-              <h6 class="mb-3">Payment Information</h6>
+              <h6 class="section-title mb-3">Payment Information</h6>
               <div class="row g-3">
                 <div class="col-12">
                   <label for="cardName" class="form-label">Cardholder Name</label>
@@ -240,9 +259,9 @@ $total = 0;
           </div>
           
           <div class="col-md-4">
-            <div class="card bg-light">
+            <div class="card product-card">
               <div class="card-body">
-                <h6 class="card-title">🔒 Secure Payment</h6>
+                <h6 class="section-title">🔒 Secure Payment</h6>
                 <p class="card-text small">
                   <i class="fas fa-shield-alt text-success"></i> Your payment information is encrypted and secure.<br><br>
                   <i class="fas fa-lock text-success"></i> We use industry-standard SSL encryption.<br><br>

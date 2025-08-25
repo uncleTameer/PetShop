@@ -26,7 +26,9 @@ $delivered = filterOrdersByStatus($orders, 'Delivered');
   <meta charset="UTF-8">
   <title>Manage Orders - Horse & Camel</title>
   <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/western-theme.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 </head>
 <body>
 <nav class="navbar navbar-dark bg-dark px-4 mb-4">
@@ -42,13 +44,21 @@ $delivered = filterOrdersByStatus($orders, 'Delivered');
   </div>
 </nav>
 
+<!-- Western Hero Section -->
+<div class="hero-section mb-4">
+  <div class="container text-center">
+    <h1 class="western-title animate__animated animate__fadeInDown">📦 Order Management</h1>
+    <p class="western-subtitle animate__animated animate__fadeInUp">Track and manage all customer orders, partner!</p>
+  </div>
+</div>
+
 <div class="container py-4">
-  <h2 class="text-center mb-4">📦 Order Management</h2>
+  <h2 class="western-title text-center mb-4">📦 Order Management</h2>
 
   <div class="row g-4">
     <!-- Pending -->
     <div class="col-md-6">
-      <h5 class="text-primary text-center">🕐 Pending Orders</h5>
+      <h5 class="western-title text-center">🕐 Pending Orders</h5>
       <table id="pendingOrders" class="table table-bordered table-striped text-center align-middle">
         <thead class="table-dark">
           <tr><th>ID</th><th>Customer</th><th>Status</th><th>Action</th></tr>
@@ -78,7 +88,7 @@ $delivered = filterOrdersByStatus($orders, 'Delivered');
 
     <!-- Shipped / Awaiting Collection -->
     <div class="col-md-6">
-      <h5 class="text-success text-center">🚚 Shipped / 🏬 Awaiting Collection</h5>
+      <h5 class="western-title text-center">🚚 Shipped / 🏬 Awaiting Collection</h5>
       <table id="shippedOrders" class="table table-bordered table-striped text-center align-middle">
         <thead class="table-dark">
           <tr><th>ID</th><th>Customer</th><th>Fulfillment</th><th>Status</th><th>Action</th></tr>

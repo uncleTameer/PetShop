@@ -53,7 +53,9 @@ try {
     <meta charset="UTF-8">
     <title>Order Details - Admin</title>
     <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/western-theme.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 </head>
 <body>
 
@@ -65,15 +67,23 @@ try {
     </div>
 </nav>
 
+<!-- Western Hero Section -->
+<div class="hero-section mb-4">
+    <div class="container text-center">
+        <h1 class="western-title animate__animated animate__fadeInDown">📦 Order Details</h1>
+        <p class="western-subtitle animate__animated animate__fadeInUp">View complete order information, partner!</p>
+    </div>
+</div>
+
 <div class="container py-4">
     <div class="row">
         <div class="col-md-8">
-            <h2>📦 Order Details</h2>
-            <div class="card">
+            <h2 class="western-title">📦 Order Details</h2>
+            <div class="card product-card">
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h5>Order Information</h5>
+                            <h5 class="section-title">Order Information</h5>
                             <p><strong>Order ID:</strong> <?= substr((string)$order['_id'], -5) ?></p>
                             <p><strong>Customer:</strong> <?= htmlspecialchars($userName) ?></p>
                             <p><strong>Email:</strong> <?= htmlspecialchars($userEmail) ?></p>
@@ -87,7 +97,7 @@ try {
                             <p><strong>Date:</strong> <?= $order['createdAt']->toDateTime()->format('M j, Y g:i A') ?></p>
                         </div>
                         <div class="col-md-6">
-                            <h5>Order Summary</h5>
+                            <h5 class="section-title">Order Summary</h5>
                             <p><strong>Total Items:</strong> <?= count($order['items']) ?></p>
                             <p><strong>Total Amount:</strong> ₪<?= number_format($order['total'], 2) ?></p>
                         </div>
@@ -95,7 +105,7 @@ try {
                     
                     <hr>
                     
-                    <h5>Items Ordered</h5>
+                    <h5 class="section-title">Items Ordered</h5>
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead class="table-light">
