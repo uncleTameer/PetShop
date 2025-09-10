@@ -4,7 +4,7 @@ require_once '../php/dbConnect.php';
 use MongoDB\BSON\ObjectId;
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header("Location: dashboard.php");
+    header("Location: enhancedDashboard.php");
     exit;
 }
 
@@ -79,7 +79,7 @@ $products = $db->products->find($filter);
 <body>
 
 <nav class="navbar navbar-dark bg-dark px-4 mb-4">
-  <a class="navbar-brand" href="dashboard.php">⬅ Back to Dashboard</a>
+  <a class="navbar-brand" href="enhancedDashboard.php">⬅ Back to Dashboard</a>
   <div class="d-flex align-items-center ms-auto text-white">
     <?php
       $imgPath = '../uploads/' . ($_SESSION['user']['profilePicture'] ?? 'default.png');

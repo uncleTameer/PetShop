@@ -56,7 +56,7 @@ $unreadCount = $db->notifications->countDocuments(['read' => ['$ne' => true]]);
 <body>
 
 <nav class="navbar navbar-dark bg-dark px-4 mb-4">
-    <a class="navbar-brand" href="dashboard.php">🏠 Admin Dashboard</a>
+    <a class="navbar-brand" href="enhancedDashboard.php">🏠 Admin Dashboard</a>
     <div class="ms-auto text-white">
         <div class="d-flex align-items-center text-white me-2">
             <img src="../uploads/<?= htmlspecialchars($_SESSION['user']['profilePicture'] ?? 'default.png') ?>" 
@@ -80,7 +80,7 @@ $unreadCount = $db->notifications->countDocuments(['read' => ['$ne' => true]]);
                     </button>
                 </form>
             <?php endif; ?>
-            <a href="dashboard.php" class="btn btn-outline-primary">← Back to Dashboard</a>
+            <a href="enhancedDashboard.php" class="btn btn-outline-primary">← Back to Dashboard</a>
         </div>
     </div>
 

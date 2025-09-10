@@ -56,7 +56,7 @@ $myEmail = $_SESSION['user']['email'];
 <?php endif; ?>
 
 <nav class="navbar navbar-dark bg-dark px-4 mb-4">
-  <a class="navbar-brand" href="dashboard.php">⬅ Admin Dashboard</a>
+  <a class="navbar-brand" href="enhancedDashboard.php">⬅ Admin Dashboard</a>
   <div class="d-flex align-items-center ms-auto text-white">
     <?php
       $imgPath = '../uploads/' . ($_SESSION['user']['profilePicture'] ?? 'default.png');

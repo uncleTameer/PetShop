@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     'role'  => $role
                 ];
                 $_SESSION['success_message'] = "🎉 Registration successful! Welcome, $fullName.";
-                header("Location: " . ($role === 'admin' ? "../admin/dashboard.php" : "index.php"));
+                header("Location: " . ($role === 'admin' ? "../admin/enhancedDashboard.php" : "index.php"));
                 exit;
             } else {
                 $message = "❌ Something went wrong. Please try again.";

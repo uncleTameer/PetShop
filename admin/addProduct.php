@@ -2,7 +2,7 @@
 require_once '../php/dbConnect.php';
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header("Location: dashboard.php");
+    header("Location: enhancedDashboard.php");
     exit;
 }
 

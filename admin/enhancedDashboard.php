@@ -1,9 +1,6 @@
 <?php
 require_once '../php/dbConnect.php';
 require_once '../php/config.php';
-require_once '../php/orderManager.php';
-require_once '../php/productManager.php';
-require_once '../php/userManager.php';
 
 // Check if user is admin
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
@@ -11,19 +8,63 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     exit;
 }
 
-$orderManager = new OrderManager();
-$productManager = new ProductManager();
-$userManager = new UserManager();
-
 // Get statistics for different periods
 $period = $_GET['period'] ?? 'month';
-$stats = $orderManager->getOrderStatistics($period);
-$topProducts = $orderManager->getTopSellingProducts(5);
-$conversionRate = $orderManager->getOrderConversionRate($period);
-$churnRate = $orderManager->getCustomerChurnRate($period);
+
+// Calculate period start date
+$startDate = match($period) {
+    'week' => strtotime('-1 week'),
+    'month' => strtotime('-1 month'),
+    'quarter' => strtotime('-3 months'),
+    'year' => strtotime('-1 year'),
+    default => strtotime('-1 month')
+};
+
+// Get order statistics
+$pipeline = [
+    [
+        '$match' => [
+            'createdAt' => ['$gte' => $startDate],
+            'status' => ['$in' => ['completed', 'shipped', 'delivered']]
+        ]
+    ],
+    [
+        '$group' => [
+            '_id' => null,
+            'totalOrders' => ['$sum' => 1],
+            'totalRevenue' => ['$sum' => '$finalTotal'],
+            'averageOrderValue' => ['$avg' => '$finalTotal']
+        ]
+    ]
+];
+
+$result = $db->orders->aggregate($pipeline)->toArray();
+$stats = !empty($result) ? $result[0] : ['totalOrders' => 0, 'totalRevenue' => 0, 'averageOrderValue' => 0];
+
+// Get top selling products
+$topProductsPipeline = [
+    ['$match' => ['status' => ['$in' => ['completed', 'shipped', 'delivered']]]],
+    ['$unwind' => '$items'],
+    ['$group' => [
+        '_id' => '$items.productId',
+        'productName' => ['$first' => '$items.name'],
+        'totalQuantity' => ['$sum' => '$items.quantity'],
+        'totalRevenue' => ['$sum' => ['$multiply' => ['$items.price', '$items.quantity']]]
+    ]],
+    ['$sort' => ['totalQuantity' => -1]],
+    ['$limit' => 5]
+];
+$topProducts = $db->orders->aggregate($topProductsPipeline)->toArray();
+
+// Simple conversion rate calculation
+$conversionRate = 0; // Simplified for now
+$churnRate = 0; // Simplified for now
 
 // Get low stock products
-$lowStockProducts = $productManager->getLowStockProducts();
+$lowStockProducts = $db->products->find([
+    'stock' => ['$lte' => 5],
+    'status' => 'active'
+])->toArray();
 
 // Get recent notifications
 $recentNotifications = $db->notifications->find(

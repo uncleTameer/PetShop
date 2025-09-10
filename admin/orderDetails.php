@@ -60,7 +60,7 @@ try {
 <body>
 
 <nav class="navbar navbar-dark bg-dark px-4">
-    <a class="navbar-brand" href="dashboard.php">🏠 Admin Dashboard</a>
+    <a class="navbar-brand" href="enhancedDashboard.php">🏠 Admin Dashboard</a>
     <div class="ms-auto">
         <a href="manageOrders.php" class="btn btn-outline-light btn-sm">← Back to Orders</a>
         <a href="../php/logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>

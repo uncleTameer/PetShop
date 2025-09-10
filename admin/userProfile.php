@@ -4,7 +4,7 @@ require_once '../php/dbConnect.php';
 use MongoDB\BSON\ObjectId;
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header("Location: dashboard.php");
+    header("Location: enhancedDashboard.php");
     exit;
 }
 

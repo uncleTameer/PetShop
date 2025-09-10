@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 use MongoDB\BSON\ObjectId;
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header("Location: dashboard.php");
+    header("Location: enhancedDashboard.php");
     exit;
 }
 
@@ -32,7 +32,7 @@ $delivered = filterOrdersByStatus($orders, 'Delivered');
 </head>
 <body>
 <nav class="navbar navbar-dark bg-dark px-4 mb-4">
-  <a class="navbar-brand" href="dashboard.php">⬅ Admin Dashboard</a>
+  <a class="navbar-brand" href="enhancedDashboard.php">⬅ Admin Dashboard</a>
   <div class="d-flex align-items-center ms-auto text-white">
     <?php
       $imgPath = '../uploads/' . ($_SESSION['user']['profilePicture'] ?? 'default.png');

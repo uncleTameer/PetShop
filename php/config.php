@@ -21,18 +21,18 @@ define('UPLOAD_WEB_PATH', '../uploads');
 define('LOYALTY_POINTS_PERCENTAGE', 10); // 10% of order value
 define('MIN_LOYALTY_POINTS_REDEMPTION', 100); // Minimum points needed to redeem
 
-// Email Configuration
-define('SMTP_HOST', 'smtp.gmail.com');
-define('SMTP_PORT', 587);
-define('SMTP_USERNAME', 'your-email@gmail.com');
-define('SMTP_PASSWORD', 'your-app-password');
-define('FROM_EMAIL', 'noreply@petshop.com');
-define('FROM_NAME', 'PetShop');
+// Email Configuration (not implemented)
+// define('SMTP_HOST', 'smtp.gmail.com');
+// define('SMTP_PORT', 587);
+// define('SMTP_USERNAME', 'your-email@gmail.com');
+// define('SMTP_PASSWORD', 'your-app-password');
+// define('FROM_EMAIL', 'noreply@petshop.com');
+// define('FROM_NAME', 'PetShop');
 
-// Google OAuth Configuration
-define('GOOGLE_CLIENT_ID', 'your-google-client-id');
-define('GOOGLE_CLIENT_SECRET', 'your-google-client-secret');
-define('GOOGLE_REDIRECT_URI', 'http://localhost/PetShop/php/googleCallback.php');
+// Google OAuth Configuration (not implemented)
+// define('GOOGLE_CLIENT_ID', 'your-google-client-id');
+// define('GOOGLE_CLIENT_SECRET', 'your-google-client-secret');
+// define('GOOGLE_REDIRECT_URI', 'http://localhost/PetShop/php/googleCallback.php');
 
 // Default Settings
 define('DEFAULT_LOW_STOCK_THRESHOLD', 5);
@@ -44,13 +44,13 @@ define('ITEMS_PER_PAGE', 12);
 define('REVIEWS_PER_PAGE', 5);
 define('QA_PER_PAGE', 10);
 
-// Cache Configuration
-define('CACHE_ENABLED', true);
-define('CACHE_DURATION', 300); // 5 minutes
+// Cache Configuration (not implemented)
+// define('CACHE_ENABLED', true);
+// define('CACHE_DURATION', 300); // 5 minutes
 
-// Notification Settings
-define('EMAIL_NOTIFICATIONS_ENABLED', true);
-define('PUSH_NOTIFICATIONS_ENABLED', false);
+// Notification Settings (not implemented)
+// define('EMAIL_NOTIFICATIONS_ENABLED', true);
+// define('PUSH_NOTIFICATIONS_ENABLED', false);
 
 // Error Reporting (set to false in production)
 define('DEBUG_MODE', true);

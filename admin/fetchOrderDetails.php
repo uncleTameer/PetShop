@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 use MongoDB\BSON\ObjectId;
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header("Location: dashboard.php");
+    header("Location: enhancedDashboard.php");
     exit;
 }
 
