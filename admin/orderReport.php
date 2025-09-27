@@ -141,7 +141,7 @@ $leastOrdered = array_slice(array_reverse($orderStats), 0, 5);
 <?php endif; ?>
 
 <nav class="navbar navbar-dark bg-dark px-4">
-  <a class="navbar-brand" href="dashboard.php">⬅ Back to Dashboard</a>
+  <a class="navbar-brand" href="enhancedDashboard.php">⬅ Back to Dashboard</a>
   <div class="d-flex align-items-center ms-auto text-white">
     <?php
       $profilePath = '../uploads/' . ($_SESSION['user']['profilePicture'] ?? 'default.png');

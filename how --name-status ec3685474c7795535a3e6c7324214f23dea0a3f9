@@ -1,0 +1,53 @@
+[33mcommit ec3685474c7795535a3e6c7324214f23dea0a3f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: uncleTameer <158566847+uncleTameer@users.noreply.github.com>
+Date:   Wed Sep 10 07:10:51 2025 +0300
+
+    added final touches and cleanup, final version of project
+
+[33mcommit 9e36485954fec80fc88cb928d8ab58dc5d07d8c2[m
+Author: uncleTameer <158566847+uncleTameer@users.noreply.github.com>
+Date:   Mon Aug 25 07:32:48 2025 +0300
+
+    final touches, changed styling and font, added view user page
+
+[33mcommit abcb4c0e879f498aedef0a028141809f5de5ace6[m
+Author: uncleTameer <158566847+uncleTameer@users.noreply.github.com>
+Date:   Fri Aug 22 11:42:56 2025 +0300
+
+    final touches, changed styling and font, added view user page
+
+[33mcommit 26ad94e4ef6982d76e181dca494c64c5de3a9e62[m[33m ([m[1;31morigin/feat/google-oauth-and-login-hardening[m[33m)[m
+Author: jerq2 <159196359+jerq2@users.noreply.github.com>
+Date:   Wed Aug 20 14:08:16 2025 +0300
+
+    Login hardening, Google OAuth, CSRF, lockout; move secrets to .env; add .gitignore and .env.example
+
+[33mcommit 7f9c5a7f364645aeefb68ef0999c628ee8daeb6c[m
+Author: uncleTameer <158566847+uncleTameer@users.noreply.github.com>
+Date:   Sat Aug 9 10:46:29 2025 +0300
+
+    Full project upload - latest local code
+
+[33mcommit 5eb975473ea10deb18ec902e4c21bc351de0d5d0[m
+Author: uncleTameer <158566847+uncleTameer@users.noreply.github.com>
+Date:   Wed Aug 6 16:50:10 2025 +0300
+
+    project final version
+
+[33mcommit f1b6d322c0a264fc49d597711f90ba857c55d770[m
+Author: uncleTameer <158566847+uncleTameer@users.noreply.github.com>
+Date:   Thu Jul 31 15:21:53 2025 +0300
+
+    🧹 Replaced full repo with fresh local version
+
+[33mcommit c3720f1187db81789d5a119efd2457a66d747f42[m
+Author: jerq2 <159196359+jerq2@users.noreply.github.com>
+Date:   Wed May 28 12:44:40 2025 +0300
+
+    updated admin dashborad and added new mod role
+
+[33mcommit f9739f9f86b6994080dd6391fb420f7ae56b231f[m
+Author: jerq2 <159196359+jerq2@users.noreply.github.com>
+Date:   Sun Apr 27 14:40:11 2025 +0300
+
+    Updated featured products and polished index page design
